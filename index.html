@@ -7,7 +7,7 @@
 <style>
 :root{
   --bg:#081024; --panel:#0f1530; --muted:#9fb0d6; --text:#ffffff;
-  --accent:#6dd6ff; --gold:#f6c85f; --green:#4caf50;
+  --accent:#6dd6ff; --gold:#f6c85f; --green:#4caf50; --red:#f87171;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:linear-gradient(180deg,#02021a 0%,var(--bg) 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
@@ -28,11 +28,38 @@ input[type=password]{width:100%;padding:12px 44px 12px 14px;border-radius:10px;b
 .btn{flex:1;padding:12px;border-radius:10px;border:none;cursor:pointer;font-weight:600;transition:0.3s}
 .btn.primary{background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#041025}
 .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-.status{height:42px;margin-top:12px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600}
 footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
 .chat-icon{position:fixed;bottom:22px;right:22px;width:56px;height:56px;background:linear-gradient(135deg,#0ea5e9 0%,#7c3aed 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 30px rgba(12,20,50,0.6);z-index:999;transition:transform .3s ease}
 .chat-icon:hover{transform:scale(1.1)}
 .chat-icon img{width:28px;height:28px}
+
+/* Popup styles */
+.popup {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: #0f1530;
+  border-left: 5px solid;
+  padding: 20px 28px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  z-index: 9999;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+
+.popup.show {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.popup.success { border-color: #4caf50; background: rgba(0,255,179,0.1); color:#4caf50;}
+.popup.error { border-color: #f87171; background: rgba(255,79,79,0.1); color:#f87171;}
 </style>
 </head>
 <body>
@@ -40,7 +67,6 @@ footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
   <div class="card">
     <div class="brand">
       <div class="logo" title="Join Telegram" onclick="window.open('https://t.me/TraderParvej_Community','_blank')">
-        <!-- Premium trading logo -->
         <svg class="mark" viewBox="0 0 80 80" width="60" height="60" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="grad1" x1="0" x2="1">
@@ -82,7 +108,6 @@ footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
         <button id="loginBtn" class="btn primary" type="button">Quick Login</button>
         <button id="resetBtn" class="btn ghost" type="button">Reset</button>
       </div>
-      <div id="status" class="status" aria-live="polite" style="display:none"></div>
     </form>
 
     <footer>© 2025 Phantom AI — TraderParvej</footer>
@@ -93,43 +118,45 @@ footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
   <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" />
 </div>
 
-<!-- ✅ Login Script -->
+<!-- ✅ Popup container -->
+<div id="popup" class="popup"></div>
+
 <script>
-  const loginBtn = document.getElementById("loginBtn");
-  const resetBtn = document.getElementById("resetBtn");
-  const passwordInput = document.getElementById("password");
-  const statusBox = document.getElementById("status");
+const loginBtn = document.getElementById("loginBtn");
+const resetBtn = document.getElementById("resetBtn");
+const passwordInput = document.getElementById("password");
+const popup = document.getElementById("popup");
 
-  loginBtn.addEventListener("click", () => {
-    const pass = passwordInput.value.trim();
+loginBtn.addEventListener("click", () => {
+  const pass = passwordInput.value.trim();
+  if (pass === "") {
+    showPopup("Please enter your Access Key.", "error");
+    return;
+  }
 
-    if (pass === "") {
-      statusBox.style.display = "block";
-      statusBox.style.color = "#f87171";
-      statusBox.textContent = "Please enter your Access Key.";
-      return;
-    }
+  if (pass === "Phantom AI") {
+    showPopup("Access Granted… Redirecting 🔄", "success");
+    setTimeout(() => { window.location.href = "signal.html"; }, 1200);
+  } else {
+    showPopup("❌ Invalid Access Key", "error");
+  }
+});
 
-    // ✅ এখানে তুমি নিজের key দিতে পারো (যেমন "parvej123")
-    if (pass === "parvej123") {
-      statusBox.style.display = "block";
-      statusBox.style.color = "#4caf50";
-      statusBox.textContent = "Access Granted... Redirecting 🔄";
+resetBtn.addEventListener("click", () => {
+  passwordInput.value = "";
+  hidePopup();
+});
 
-      setTimeout(() => {
-        window.location.href = "signal.html";
-      }, 1200);
-    } else {
-      statusBox.style.display = "block";
-      statusBox.style.color = "#f87171";
-      statusBox.textContent = "❌ Invalid Access Key";
-    }
-  });
+// Popup functions
+function showPopup(message, type) {
+  popup.textContent = message;
+  popup.className = `popup show ${type}`;
+  setTimeout(() => { hidePopup(); }, 2000);
+}
 
-  resetBtn.addEventListener("click", () => {
-    passwordInput.value = "";
-    statusBox.style.display = "none";
-  });
+function hidePopup() {
+  popup.className = "popup";
+}
 </script>
 
 </body>
