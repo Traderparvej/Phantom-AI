@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phantom AI — Signal Dashboard</title>
+<title>Phantom AI — Signal</title>
 <style>
 :root{
   --bg:#081024; --panel:#0f1530; --muted:#9fb0d6; --text:#ffffff;
@@ -12,44 +12,27 @@
 *{box-sizing:border-box;}
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#02021a 0%,var(--bg) 100%);color:var(--text);}
 .container{max-width:800px;margin:40px auto;padding:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;box-shadow:0 12px 40px rgba(2,6,23,0.7);backdrop-filter:blur(8px);}
-.header-container{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
+.header-container{margin-bottom:30px;}
 .header-container h1{margin:0;font-size:28px;color:var(--green);letter-spacing:1px;font-weight:700;}
-.header-container #liveTime{color:#ffffff;font-weight:400;font-size:16px;font-family:monospace;} /* Old-school clock */
 .selection-box, .input-box, .output-box{margin-bottom:20px;padding:20px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);}
 .selection-box label, .input-box label{display:block;margin-bottom:8px;color:var(--muted);}
 .select-field, .input-field{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.03);color:inherit;font-size:15px;outline:none;}
 .btn{padding:12px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:600;background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#041025;transition:0.3s;}
 .btn:hover{opacity:0.9;transform:scale(1.02);}
-.output-box{min-height:140px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-weight:600;font-size:16px;text-align:center;position:relative;transition:all 0.4s ease;}
+.output-box{min-height:160px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;font-weight:600;font-size:16px;text-align:left;position:relative;transition:all 0.4s ease;line-height:1.6;}
 .loading{font-size:14px;color:var(--accent);animation:blink 1.2s infinite;}
 @keyframes blink{0%,50%,100%{opacity:1;}25%,75%{opacity:0;}}
-.signal-output{opacity:0;transform:translateY(20px);transition:all 0.6s ease;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.signal-output{opacity:0;transform:translateY(20px);transition:all 0.6s ease;display:flex;flex-direction:column;gap:6px;}
 .signal-output.show{opacity:1;transform:translateY(0);}
-.glow{
-  color: var(--green);
-  text-shadow: 0 0 5px #00ffb3, 0 0 10px #00ffb3, 0 0 15px #00ffb3;
-  font-weight:700;
-}
-.stage{
-  color: var(--muted);
-  font-weight:500;
-  text-shadow: 0 0 2px #6dd6ff;
-  margin-top:4px;
-  font-size:14px;
-}
-/* Mini candlestick bars */
-.candle-bar{width:6px;background:var(--accent);margin:0 2px;border-radius:2px;display:inline-block;animation:barAnim 1.5s infinite alternate;}
-@keyframes barAnim{0%{height:10px;}50%{height:30px;}100%{height:12px;}}
-.candle-container{display:flex;justify-content:center;align-items:flex-end;margin-top:10px;gap:2px;}
+.glow{color: var(--green);text-shadow: 0 0 5px #00ffb3, 0 0 10px #00ffb3, 0 0 15px #00ffb3;font-weight:700;}
 </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- Header with old-school clock -->
+  <!-- Header -->
   <div class="header-container">
     <h1>Phantom AI</h1>
-    <div id="liveTime"></div>
   </div>
 
   <!-- Market selection -->
@@ -65,7 +48,7 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
   <!-- Pair input -->
   <div class="input-box">
     <label>Enter Pair Name</label>
-    <input type="text" id="marketName" class="input-field" placeholder="e.g. BTC/USD">
+    <input type="text" id="marketName" class="input-field" placeholder="e.g. EUR/JPY">
   </div>
 
   <!-- Generate button -->
@@ -80,18 +63,6 @@ body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI"
 </div>
 
 <script>
-// Old-school real-time clock
-function updateTime(){
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2,'0');
-  const minutes = String(now.getMinutes()).padStart(2,'0');
-  const seconds = String(now.getSeconds()).padStart(2,'0');
-  document.getElementById('liveTime').textContent = `${hours}:${minutes}:${seconds}`;
-}
-setInterval(updateTime,1000);
-updateTime(); // initial call
-
-// Signal generation
 const generateBtn = document.getElementById("generateBtn");
 const marketType = document.getElementById("marketType");
 const marketName = document.getElementById("marketName");
@@ -114,22 +85,28 @@ generateBtn.addEventListener("click", () => {
   outputBox.innerHTML = `<span class="loading">Analyzing Phantom AI...</span>`;
 
   setTimeout(() => {
+    // Random time 2–4 minutes after current
+    const now = new Date();
+    const randomMinutes = Math.floor(Math.random() * 3) + 2; // 2,3,4
+    now.setMinutes(now.getMinutes() + randomMinutes);
+    const hours = String(now.getHours()).padStart(2,'0');
+    const minutes = String(now.getMinutes()).padStart(2,'0');
+    const timeString = `${hours}:${minutes}`;
+
+    // Final output
     outputBox.innerHTML = `
       <div class="signal-output glow">
-        ${name}
-        <div class="candle-container">
-          <span class="candle-bar"></span>
-          <span class="candle-bar"></span>
-          <span class="candle-bar"></span>
-          <span class="candle-bar"></span>
-          <span class="candle-bar"></span>
-        </div>
-        <div class="stage">Opposite Candle Trade</div>
+        <div>🚀 Phantom AI</div>
+        <div>💱 Pair: ${name}</div>
+        <div>⏰ Time: ${timeString}</div>
+        <div>📈 Strategy: Opposite Trade</div>
+        <div>⚡ Note: Follow risk <br>management & check previous candle.</div>
       </div>
     `;
-    // Trigger animation
+
     const elements = outputBox.querySelectorAll('.signal-output');
     elements.forEach((el,i)=>{ setTimeout(()=>el.classList.add('show'), i*150); });
+
   }, 2000); // 2s analysis
 });
 </script>
