@@ -1,55 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Phantom AI — Login</title>
-<style>
-:root{
-  --bg:#081024; --panel:#0f1530; --muted:#9fb0d6; --text:#ffffff;
-  --accent:#6dd6ff; --gold:#f6c85f; --green:#4caf50; --red:#f87171;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;background:linear-gradient(180deg,#02021a 0%,var(--bg) 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
-.wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:36px;position:relative}
-.card{width:100%;max-width:460px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:18px;padding:36px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 12px 40px rgba(2,6,23,0.7);backdrop-filter: blur(8px);position:relative;z-index:1}
-.brand{display:flex;gap:16px;align-items:center;margin-bottom:20px}
-.logo{width:78px;height:78px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#061226 0%,#0f1530 100%);box-shadow:0 10px 30px rgba(2,6,23,0.6);position:relative;cursor:pointer;overflow:hidden}
-.logo:hover{transform:translateY(-4px)}
-@keyframes float {0%{transform:translateY(0)}50%{transform:translateY(-4px)}100%{transform:translateY(0)}}
-.logo .mark{animation:float 3.5s ease-in-out infinite}
-.title{font-size:20px;font-weight:700;letter-spacing:0.4px}
-.subtitle{font-size:13px;color:var(--muted);margin-top:2px}
-form{margin-top:18px}
-.field{margin-bottom:14px}
-label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
-input[type=password]{width:100%;padding:12px 44px 12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.03);color:inherit;font-size:15px;outline:none}
-.actions{display:flex;gap:10px;align-items:center;margin-top:12px}
-.btn{flex:1;padding:12px;border-radius:10px;border:none;cursor:pointer;font-weight:600;transition:0.3s}
-.btn.primary{background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#041025}
-.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
-.chat-icon{position:fixed;bottom:22px;right:22px;width:56px;height:56px;background:linear-gradient(135deg,#0ea5e9 0%,#7c3aed 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 30px rgba(12,20,50,0.6);z-index:999;transition:transform .3s ease}
-.chat-icon:hover{transform:scale(1.1)}
-.chat-icon img{width:28px;height:28px}
+<!-- Popup container -->
+<div id="popup" class="popup"></div>
 
-/* Popup styles */
+<style>
+/* Popup styles updated for premium effect */
 .popup {
   position: fixed;
   top: 20%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0);
-  background: #0f1530;
-  border-left: 5px solid;
+  background: rgba(0, 255, 179, 0.1); /* premium green translucent */
+  border-left: 5px solid #00ffb3;
   padding: 20px 28px;
   border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+  box-shadow: 0 0 25px rgba(0,255,179,0.7);
   font-size: 16px;
   font-weight: 600;
-  color: #fff;
+  color: #00ffb3;
   text-align: center;
   z-index: 9999;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.4s ease, opacity 0.4s ease;
   opacity: 0;
 }
 
@@ -58,68 +27,13 @@ footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
   opacity: 1;
 }
 
-.popup.success { border-color: #4caf50; background: rgba(0,255,179,0.1); color:#4caf50;}
-.popup.error { border-color: #f87171; background: rgba(255,79,79,0.1); color:#f87171;}
+.popup.error {
+  background: rgba(255,79,79,0.1);
+  border-left-color: #ff4f4f;
+  color: #ff4f4f;
+  box-shadow: 0 0 25px rgba(255,79,79,0.7);
+}
 </style>
-</head>
-<body>
-<div class="wrap">
-  <div class="card">
-    <div class="brand">
-      <div class="logo" title="Join Telegram" onclick="window.open('https://t.me/TraderParvej_Community','_blank')">
-        <svg class="mark" viewBox="0 0 80 80" width="60" height="60" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="grad1" x1="0" x2="1">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="100%" stop-color="#4facfe"/>
-            </linearGradient>
-            <linearGradient id="grad2" x1="0" x2="1">
-              <stop offset="0%" stop-color="#7c3aed"/>
-              <stop offset="100%" stop-color="#06b6d4"/>
-            </linearGradient>
-          </defs>
-          <path d="M10 60 L70 60 M10 40 L70 40 M10 20 L70 20" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-          <rect x="16" y="35" width="6" height="25" rx="2" fill="url(#grad1)">
-            <animate attributeName="y" values="35;30;35" dur="2.5s" repeatCount="indefinite"/>
-          </rect>
-          <rect x="32" y="25" width="6" height="35" rx="2" fill="url(#grad2)">
-            <animate attributeName="y" values="25;20;25" dur="3s" repeatCount="indefinite"/>
-          </rect>
-          <rect x="48" y="40" width="6" height="20" rx="2" fill="url(#grad1)">
-            <animate attributeName="y" values="40;36;40" dur="2.8s" repeatCount="indefinite"/>
-          </rect>
-          <path d="M55 28 L65 18 L70 23 L60 33 Z" fill="url(#grad2)">
-            <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0,0;0,-3;0,0" dur="2s" repeatCount="indefinite"/>
-          </path>
-        </svg>
-      </div>
-      <div>
-        <div class="title">Phantom AI</div>
-        <div class="subtitle">Real Time Market Analysis</div>
-      </div>
-    </div>
-
-    <form id="loginForm" onsubmit="return false" autocomplete="off">
-      <div class="field">
-        <label for="password">Enter Access Key</label>
-        <input id="password" type="password" inputmode="text" placeholder="Your secret key" />
-      </div>
-      <div class="actions">
-        <button id="loginBtn" class="btn primary" type="button">Quick Login</button>
-        <button id="resetBtn" class="btn ghost" type="button">Reset</button>
-      </div>
-    </form>
-
-    <footer>© 2025 Phantom AI — TraderParvej</footer>
-  </div>
-</div>
-
-<div class="chat-icon" onclick="window.location.href='https://t.me/TraderParvej_Community'">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" />
-</div>
-
-<!-- ✅ Popup container -->
-<div id="popup" class="popup"></div>
 
 <script>
 const loginBtn = document.getElementById("loginBtn");
@@ -135,10 +49,10 @@ loginBtn.addEventListener("click", () => {
   }
 
   if (pass === "Phantom AI") {
-    showPopup("Access Granted… Redirecting 🔄", "success");
+    showPopup("Login Successful… Redirecting", "success");
     setTimeout(() => { window.location.href = "signal.html"; }, 1200);
   } else {
-    showPopup("❌ Invalid Access Key", "error");
+    showPopup("Invalid Access Key", "error");
   }
 });
 
@@ -147,7 +61,6 @@ resetBtn.addEventListener("click", () => {
   hidePopup();
 });
 
-// Popup functions
 function showPopup(message, type) {
   popup.textContent = message;
   popup.className = `popup show ${type}`;
@@ -158,6 +71,3 @@ function hidePopup() {
   popup.className = "popup";
 }
 </script>
-
-</body>
-</html>
