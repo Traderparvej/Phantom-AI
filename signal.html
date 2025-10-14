@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phantom AI — Signal Dashboard</title>
+<style>
+:root{
+  --bg:#081024; --panel:#0f1530; --muted:#9fb0d6; --text:#ffffff;
+  --accent:#6dd6ff; --green:#00ffb3; --red:#ff4f4f; --gold:#f6c85f;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#02021a 0%,var(--bg) 100%);color:var(--text);}
+.container{max-width:800px;margin:40px auto;padding:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;box-shadow:0 12px 40px rgba(2,6,23,0.7);backdrop-filter:blur(8px);}
+h1{text-align:center;margin-bottom:30px;font-size:24px;color:var(--green);}
+.selection-box, .input-box, .output-box{margin-bottom:20px;padding:20px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);}
+.selection-box label, .input-box label{display:block;margin-bottom:8px;color:var(--muted);}
+.select-field, .input-field{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.03);color:inherit;font-size:15px;outline:none;}
+.btn{padding:12px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:600;background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#041025;transition:0.3s;}
+.btn:hover{opacity:0.9;transform:scale(1.02);}
+.output-box{min-height:140px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-weight:600;font-size:16px;text-align:center;position:relative;transition:all 0.4s ease;}
+.loading{font-size:14px;color:var(--accent);animation:blink 1.2s infinite;}
+@keyframes blink{0%,50%,100%{opacity:1;}25%,75%{opacity:0;}}
+.signal-output{opacity:0;transform:translateY(20px);transition:all 0.6s ease;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.signal-output.show{opacity:1;transform:translateY(0);}
+.glow{
+  color: var(--green);
+  text-shadow: 0 0 5px #00ffb3, 0 0 10px #00ffb3, 0 0 15px #00ffb3;
+  font-weight:700;
+}
+.stage{
+  color: var(--muted);
+  font-weight:500;
+  text-shadow: 0 0 2px #6dd6ff;
+  margin-top:4px;
+  font-size:14px;
+}
+/* Mini candlestick bars */
+.candle-bar{width:6px;background:var(--accent);margin:0 2px;border-radius:2px;display:inline-block;animation:barAnim 1.5s infinite alternate;}
+@keyframes barAnim{0%{height:10px;}50%{height:30px;}100%{height:12px;}}
+.candle-container{display:flex;justify-content:center;align-items:flex-end;margin-top:10px;gap:2px;}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Phantom AI — Signal Dashboard</h1>
+
+  <div class="selection-box">
+    <label>Select Market Type</label>
+    <select id="marketType" class="select-field">
+      <option value="">-- Choose Market --</option>
+      <option value="Real Market">Real Market</option>
+      <option value="OTC Market">OTC Market</option>
+    </select>
+  </div>
+
+  <div class="input-box">
+    <label>Enter Pair Name</label>
+    <input type="text" id="marketName" class="input-field" placeholder="e.g. BTC/USD">
+  </div>
+
+  <div>
+    <button id="generateBtn" class="btn">Generate Signal</button>
+  </div>
+
+  <div class="output-box" id="outputBox">
+    <!-- Signal output -->
+  </div>
+</div>
+
+<script>
+const generateBtn = document.getElementById("generateBtn");
+const marketType = document.getElementById("marketType");
+const marketName = document.getElementById("marketName");
+const outputBox = document.getElementById("outputBox");
+
+generateBtn.addEventListener("click", () => {
+  const type = marketType.value.trim();
+  const name = marketName.value.trim();
+
+  if(!type){
+    outputBox.innerHTML = "<span style='color:var(--red)'>Please select a market type.</span>";
+    return;
+  }
+  if(!name){
+    outputBox.innerHTML = "<span style='color:var(--red)'>Please enter a pair name.</span>";
+    return;
+  }
+
+  // Loading animation
+  outputBox.innerHTML = `<span class="loading">Analyzing Phantom AI...</span>`;
+
+  setTimeout(() => {
+    outputBox.innerHTML = `
+      <div class="signal-output glow">
+        ${name}
+        <div class="candle-container">
+          <span class="candle-bar"></span>
+          <span class="candle-bar"></span>
+          <span class="candle-bar"></span>
+          <span class="candle-bar"></span>
+          <span class="candle-bar"></span>
+        </div>
+        <div class="stage">Opposite Candle Trade</div>
+      </div>
+    `;
+    // Trigger animation
+    const elements = outputBox.querySelectorAll('.signal-output');
+    elements.forEach((el,i)=>{ setTimeout(()=>el.classList.add('show'), i*150); });
+  }, 2000); // 2s analysis
+});
+</script>
+
+</body>
+</html>
