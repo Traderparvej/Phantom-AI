@@ -40,7 +40,7 @@ footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
   <div class="card">
     <div class="brand">
       <div class="logo" title="Join Telegram" onclick="window.open('https://t.me/TraderParvej_Community','_blank')">
-        <!-- Premium trading logo: dynamic chart-style animation -->
+        <!-- Premium trading logo -->
         <svg class="mark" viewBox="0 0 80 80" width="60" height="60" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="grad1" x1="0" x2="1">
@@ -52,9 +52,7 @@ footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
               <stop offset="100%" stop-color="#06b6d4"/>
             </linearGradient>
           </defs>
-          <!-- Chart grid lines -->
           <path d="M10 60 L70 60 M10 40 L70 40 M10 20 L70 20" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-          <!-- Candlesticks -->
           <rect x="16" y="35" width="6" height="25" rx="2" fill="url(#grad1)">
             <animate attributeName="y" values="35;30;35" dur="2.5s" repeatCount="indefinite"/>
           </rect>
@@ -64,7 +62,6 @@ footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
           <rect x="48" y="40" width="6" height="20" rx="2" fill="url(#grad1)">
             <animate attributeName="y" values="40;36;40" dur="2.8s" repeatCount="indefinite"/>
           </rect>
-          <!-- Upward arrow -->
           <path d="M55 28 L65 18 L70 23 L60 33 Z" fill="url(#grad2)">
             <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0,0;0,-3;0,0" dur="2s" repeatCount="indefinite"/>
           </path>
@@ -95,6 +92,45 @@ footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
 <div class="chat-icon" onclick="window.location.href='https://t.me/TraderParvej_Community'">
   <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" />
 </div>
+
+<!-- ✅ Login Script -->
+<script>
+  const loginBtn = document.getElementById("loginBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const passwordInput = document.getElementById("password");
+  const statusBox = document.getElementById("status");
+
+  loginBtn.addEventListener("click", () => {
+    const pass = passwordInput.value.trim();
+
+    if (pass === "") {
+      statusBox.style.display = "block";
+      statusBox.style.color = "#f87171";
+      statusBox.textContent = "Please enter your Access Key.";
+      return;
+    }
+
+    // ✅ এখানে তুমি নিজের key দিতে পারো (যেমন "parvej123")
+    if (pass === "parvej123") {
+      statusBox.style.display = "block";
+      statusBox.style.color = "#4caf50";
+      statusBox.textContent = "Access Granted... Redirecting 🔄";
+
+      setTimeout(() => {
+        window.location.href = "signal.html";
+      }, 1200);
+    } else {
+      statusBox.style.display = "block";
+      statusBox.style.color = "#f87171";
+      statusBox.textContent = "❌ Invalid Access Key";
+    }
+  });
+
+  resetBtn.addEventListener("click", () => {
+    passwordInput.value = "";
+    statusBox.style.display = "none";
+  });
+</script>
 
 </body>
 </html>
