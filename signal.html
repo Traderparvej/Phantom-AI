@@ -75,18 +75,31 @@ label{color:#9fb0d6;font-size:14px;margin-bottom:8px;display:block;}
   background:rgba(0,0,0,0.3);
   border:1px solid rgba(255,255,255,0.05);
   min-height:150px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
   text-align:left;
   white-space:pre-line;
   font-weight:600;
   font-size:16px;
-  letter-spacing:0.3px;
   line-height:1.8;
   color:#ccefff;
   box-shadow:inset 0 0 10px rgba(0,255,204,0.15);
+  position:relative;
 }
+.copy-btn{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:linear-gradient(90deg,#00ffc6,#42a5ff);
+  border:none;
+  border-radius:8px;
+  color:#001222;
+  font-weight:600;
+  padding:6px 12px;
+  cursor:pointer;
+  font-size:13px;
+  transition:0.2s;
+  display:none;
+}
+.copy-btn:hover{opacity:0.85;}
 .loading{
   font-size:15px;
   color:var(--accent);
@@ -99,6 +112,24 @@ label{color:#9fb0d6;font-size:14px;margin-bottom:8px;display:block;}
   transition:all 0.5s ease;
 }
 .signal-output.show{
+  opacity:1;
+  transform:translateY(0);
+}
+.toast{
+  position:fixed;
+  bottom:25px;
+  right:25px;
+  background:linear-gradient(90deg,#00ffc6,#42a5ff);
+  color:#001222;
+  padding:12px 20px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:14px;
+  opacity:0;
+  transform:translateY(20px);
+  transition:all 0.4s ease;
+}
+.toast.show{
   opacity:1;
   transform:translateY(0);
 }
@@ -121,14 +152,20 @@ label{color:#9fb0d6;font-size:14px;margin-bottom:8px;display:block;}
 
   <button id="generateBtn" class="btn">Generate Signal</button>
 
-  <div class="output-box" id="outputBox"></div>
+  <div class="output-box" id="outputBox">
+    <button class="copy-btn" id="copyBtn">Copy</button>
+  </div>
 </div>
+
+<div class="toast" id="toast">Signal Copied!</div>
 
 <script>
 const generateBtn = document.getElementById("generateBtn");
 const marketType = document.getElementById("marketType");
 const marketName = document.getElementById("marketName");
 const outputBox = document.getElementById("outputBox");
+const copyBtn = document.getElementById("copyBtn");
+const toast = document.getElementById("toast");
 
 generateBtn.addEventListener("click", () => {
   const type = marketType.value.trim();
@@ -154,7 +191,7 @@ generateBtn.addEventListener("click", () => {
     const minutes = String(now.getMinutes()).padStart(2,'0');
     const timeString = `${hours}:${minutes}`;
 
-    // Final output text exactly how you wrote
+    // Final output text
     const outputText = 
 `🚀 Phantom AI
 
@@ -166,10 +203,18 @@ generateBtn.addEventListener("click", () => {
 ⚡ Note: Follow risk 
 management & check previous candle.`;
 
-    outputBox.innerHTML = `<div class="signal-output">${outputText}</div>`;
-
+    outputBox.innerHTML = `<div class="signal-output">${outputText}</div><button class="copy-btn" id="copyBtn">Copy</button>`;
+    
     const el = outputBox.querySelector(".signal-output");
+    const newCopyBtn = document.getElementById("copyBtn");
+    newCopyBtn.style.display = "block";
     setTimeout(()=> el.classList.add("show"), 100);
+
+    newCopyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(outputText);
+      toast.classList.add("show");
+      setTimeout(()=> toast.classList.remove("show"), 1500);
+    });
 
   }, 2000);
 });
