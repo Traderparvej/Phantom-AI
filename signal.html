@@ -36,11 +36,112 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 .toast.show{opacity:1;transform:translateY(0)}
 .trial-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;padding:18px 22px;border-radius:12px;font-weight:800;z-index:2000;display:none;box-shadow:0 10px 30px rgba(0,0,0,.45);cursor:pointer;text-align:center;max-width:320px}
 .admin-footer{text-align:center;color:var(--muted);font-size:13px;margin-top:14px;cursor:pointer}
+
+/* --- MODAL STYLES --- */
 .modal-backdrop{position:fixed;inset:0;background:rgba(1,4,12,0.6);display:none;align-items:center;justify-content:center;z-index:3000}
 .modal{width:720px;max-width:92%;background:linear-gradient(180deg, rgba(10,12,22,0.98), rgba(6,8,15,0.98));border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 20px 60px rgba(1,4,12,0.7);transform:translateY(12px);opacity:0;transition:all .18s}
 .modal.show{transform:translateY(0);opacity:1}
 .close-x{position:absolute;right:14px;top:12px;border:none;background:transparent;color:var(--muted);font-weight:700;cursor:pointer}
 @media(max-width:720px){ .modal{padding:14px} }
+
+/* --- PROFESSIONAL ADMIN PANEL --- */
+.admin-title{
+  margin-top:0;
+  margin-bottom:14px;
+  text-align:center;
+  font-size:22px;
+  font-weight:800;
+  background:linear-gradient(90deg,#00ffc6,#42a5ff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.admin-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+}
+.flex-end{display:flex;align-items:flex-end;justify-content:flex-end;}
+.admin-tools{margin-top:18px;}
+.license-list{
+  margin-top:4px;
+  color:#cfefff;
+  font-size:14px;
+  max-height:300px;
+  overflow-y:auto;
+  background:rgba(255,255,255,0.02);
+  border-radius:8px;
+  padding:10px;
+  border:1px solid rgba(255,255,255,0.05);
+}
+.license-list::-webkit-scrollbar{width:6px;}
+.license-list::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#00ffc6,#42a5ff);
+  border-radius:6px;
+}
+.license-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:rgba(255,255,255,0.03);
+  padding:6px 8px;
+  border-radius:6px;
+  margin-bottom:6px;
+}
+.license-actions button{
+  border:none;
+  border-radius:6px;
+  padding:4px 8px;
+  font-size:12px;
+  cursor:pointer;
+  font-weight:700;
+  transition:opacity .15s;
+}
+.btn-copy{background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;}
+.btn-delete{background:linear-gradient(90deg,#ff9b9b,#ff6b6b);color:#2b0707;}
+.license-actions button:hover{opacity:.8;}
+.license-item small{
+  display:block;
+  line-height:1.4em;
+  opacity:0.9;
+}
+
+/* --- INVALID LICENSE POPUP --- */
+#invalidPopup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.popup-inner{
+  background:#0f172a;
+  color:#fff;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;
+  padding:22px 26px;
+  max-width:360px;
+  text-align:center;
+  box-shadow:0 0 25px rgba(0,255,198,0.15);
+  animation:popIn 0.25s ease;
+}
+.popup-icon{font-size:28px;margin-bottom:8px;}
+.popup-inner h3{margin:4px 0 8px;color:#00ffc6;font-size:18px;}
+.popup-inner p{font-size:14px;opacity:0.85;margin-bottom:14px;}
+.telegram-link{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(0,136,204,0.1);
+  border:1px solid rgba(0,136,204,0.3);
+  color:#00bfff;text-decoration:none;font-weight:700;
+  padding:6px 10px;border-radius:8px;transition:all .15s;margin-bottom:10px;
+}
+.telegram-link:hover{background:rgba(0,136,204,0.2);transform:translateY(-1px);}
+.popup-inner button{
+  margin-top:6px;background:linear-gradient(90deg,#00ffc6,#42a5ff);
+  color:#00121a;border:none;padding:8px 16px;font-weight:700;border-radius:8px;cursor:pointer;
+}
+@keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
 </style>
 </head>
 <body>
@@ -108,19 +209,40 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
   </div>
 </div>
 
+<!-- PROFESSIONAL ADMIN PANEL -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
     <button class="close-x" id="closeModal">✕</button>
-    <h2>Admin Panel — License Generator</h2>
-    <input id="adminDeviceId" class="input-field" placeholder="Device ID">
-    <input id="adminUserName" class="input-field" placeholder="Username">
-    <input id="adminValidity" class="input-field" type="number" value="30">
-    <button id="generateLicenseBtn" class="btn btn-small">Generate License</button>
-    <div id="licensesList" style="margin-top:10px;color:#ccc;font-size:14px;"></div>
+    <h2 class="admin-title">🧠 Phantom Admin Console</h2>
+    <div class="admin-grid">
+      <div>
+        <label class="small-muted">Device ID</label>
+        <input id="adminDeviceId" class="input-field" placeholder="Enter Device ID">
+      </div>
+      <div>
+        <label class="small-muted">Username</label>
+        <input id="adminUserName" class="input-field" placeholder="Enter Username">
+      </div>
+      <div>
+        <label class="small-muted">Validity (days)</label>
+        <input id="adminValidity" class="input-field" type="number" value="30">
+      </div>
+      <div class="flex-end">
+        <button id="generateLicenseBtn" class="btn btn-small" style="width:100%">Generate License</button>
+      </div>
+    </div>
+    <div class="admin-tools">
+      <input id="searchLicense" type="text" placeholder="🔍 Search license..." class="input-field" style="margin-bottom:10px;">
+      <div id="licensesList" class="license-list">
+        <b>Saved Licenses:</b><br>Loading...
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast">Copied</div>
+
+<!-- INVALID LICENSE POPUP WILL BE GENERATED DYNAMICALLY -->
 
 <script>
 // ===== Device ID =====
@@ -152,20 +274,22 @@ const licData=JSON.parse(localStorage.getItem('phantom_active_license')||'null')
 if(licData&&new Date(licData.exp)>=new Date()){licenseVerified=true;licenseStatus.textContent='Active';}
 
 // ===== Signal History =====
-let signalHistory = []; // store all signals
+let signalHistory = [];
 
+// ===== License Verification =====
 document.getElementById('verifyBtn').onclick=()=>{
   const key=document.getElementById('licenseKey').value.trim();
+  if(!key) return showInvalidPopup("Please enter a license key first.");
   const all=loadLicenses();
-  if(key in all){
-    const lic=all[key];
-    if(lic.device===deviceId && lic.exp>=todayStr){
-      licenseVerified=true;
-      licenseStatus.textContent='Active';
-      localStorage.setItem('phantom_active_license',JSON.stringify(lic));
-      showToast("License Verified ✅");
-    }else alert("Invalid Device or Expired License");
-  }else alert("Invalid License");
+  const lic=all[key];
+  if(!lic){showInvalidPopup("Your license is invalid. Please contact @TraderParvej to get a valid license."); return;}
+  if(lic.device!==deviceId){showInvalidPopup("License not valid for this device."); return;}
+  const expDate = new Date(lic.exp);
+  if(expDate < new Date()){showInvalidPopup("Your license has expired. Please contact @TraderParvej to renew it."); return;}
+  licenseVerified=true;
+  licenseStatus.textContent='Active';
+  localStorage.setItem('phantom_active_license',JSON.stringify(lic));
+  showToast("License Verified ✅");
 };
 
 // ===== Generate Signal =====
@@ -181,7 +305,7 @@ document.getElementById('generateBtn').onclick=()=>{
   const hh=String(time.getHours()).padStart(2,'0');
   const mm=String(time.getMinutes()).padStart(2,'0');
 
-  const signal=`🚀 Phantom AI  🚀\n\n💱 Pair: ${market} ${type}\n⏰ Time: ${hh}:${mm}\n\n📈 Strategy: Opposite Trade\n\n⚡️ Note: Follow risk \nmanagement & check previous candle.`;
+  const signal=`🚀 Phantom AI  🚀\n\n💱 Pair: ${market} ${type}\n⏰ Time: ${hh}:${mm}\n\n📈 Strategy: Opposite Trade\n\n⚡️ Note: Follow risk management & check previous candle.`;
 
   document.getElementById('signalText').textContent=signal;
   document.getElementById('signalButtons').style.display='flex';
@@ -197,69 +321,6 @@ document.getElementById('copyResult').onclick=()=>{
   navigator.clipboard.writeText(text).then(()=>showToast("Result Copied ✅"));
 };
 
-// ===== Profit / Loss / Avoid Buttons =====
+// ===== Profit / Loss / Avoid =====
 function updateSummary(){
-  const summary=document.getElementById('summary');
-  let win=0,loss=0,avoid=0;
-  signalHistory.forEach(s=>{
-    if(s.result==='Profit') win++;
-    else if(s.result==='Loss') loss++;
-    else if(s.result==='Avoid') avoid++;
-  });
-  const total=signalHistory.length;
-  const accuracy=total>0?Math.round((win/total)*100):0;
-  summary.textContent=`📊 Total Signals: ${total}\n✅ Win: ${win} ❌ Loss: ${loss} ⚠️ Avoid: ${avoid}\n📈 Accuracy: ${accuracy}%`;
-}
-
-function addSignalResult(result){
-  const signal=document.getElementById('signalText').textContent;
-  signalHistory.push({signal,result});
-  const rl=document.getElementById('resultList');
-  rl.textContent='🏁 Phantom AI Result 🏁\n\n' + signalHistory.map(s=>`${s.signal}\n${s.result==='Profit'?'✅':s.result==='Loss'?'❌':'⚠️'}`).join('\n') + '\n';
-  updateSummary();
-}
-
-document.getElementById('btnProfit').onclick=()=>addSignalResult('Profit');
-document.getElementById('btnLoss').onclick=()=>addSignalResult('Loss');
-document.getElementById('btnAvoid').onclick=()=>addSignalResult('Avoid');
-
-// ===== Reset =====
-document.getElementById('resetBtn').onclick=()=>{
-  document.getElementById('resultList').textContent='';
-  document.getElementById('signalText').textContent='Press Generate to create a signal.';
-  trial.count=0; localStorage.setItem('phantom_trial',JSON.stringify(trial));
-  document.getElementById('trialPopup').style.display='none';
-  signalHistory=[];
-  updateSummary();
-};
-document.getElementById('trialPopup').onclick=()=>{document.getElementById('trialPopup').style.display='none';};
-
-// ===== Admin Panel =====
-const adminFooter=document.getElementById('adminFooter');
-const passwordBackdrop=document.getElementById('passwordBackdrop');
-const modalBackdrop=document.getElementById('modalBackdrop');
-adminFooter.onclick=()=>{passwordBackdrop.style.display='flex';passwordBackdrop.querySelector('.modal').classList.add('show');};
-document.getElementById('closePasswordModal').onclick=()=>{passwordBackdrop.style.display='none';};
-document.getElementById('verifyAdminPasswordBtn').onclick=()=>{
-  const p=document.getElementById('adminPasswordInput').value;
-  if(p==='@TraderParvej+'){passwordBackdrop.style.display='none';modalBackdrop.style.display='flex';modalBackdrop.querySelector('.modal').classList.add('show');renderLic();}
-  else alert("Wrong password");
-};
-document.getElementById('closeModal').onclick=()=>{modalBackdrop.style.display='none';};
-document.getElementById('generateLicenseBtn').onclick=()=>{
-  const id=document.getElementById('adminDeviceId').value.trim();
-  const user=document.getElementById('adminUserName').value.trim();
-  const days=parseInt(document.getElementById('adminValidity').value);
-  if(!id||!user||days<=0)return alert("Fill all");
-  const key='PH-'+Math.random().toString(36).substring(2,10).toUpperCase();
-  const exp=new Date(); exp.setDate(exp.getDate()+days);
-  const all=loadLicenses(); all[key]={device:id,user,exp:exp.toISOString().slice(0,10)}; saveLicenses(all); renderLic();
-};
-function renderLic(){
-  const all=loadLicenses(); 
-  const div=document.getElementById('licensesList');
-  div.innerHTML='<b>Saved Licenses:</b><br>'+Object.entries(all).map(([k,v])=>`${k} — ${v.device} — ${v.user} — ${v.exp}`).join('<br>');
-}
-</script>
-</body>
-</html>
+  const summary=document.getElementById('summary
