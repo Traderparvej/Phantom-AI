@@ -134,7 +134,6 @@ body{
   z-index:1200;
 }
 .toast.show{opacity:1;transform:translateY(0);}
-.clear-btn{margin-top:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer}
 .signal-buttons{margin-top:12px;display:flex;gap:10px;}
 </style>
 </head>
@@ -202,20 +201,19 @@ function showToast(text="Signal Copied!"){
 }
 
 function renderResults(){
-  const lines=history.map(h=>`${h.pair} ${h.status==='win'?'✅':'❌'}`).join("\n");
+  const lines=history.map(h=>`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}`).join("\n");
   resultList.textContent=lines||"No signals yet.";
   const total=history.length;
   const wins=history.filter(h=>h.status==='win').length;
   const losses=history.filter(h=>h.status==='loss').length;
   const avoids=history.filter(h=>h.status==='avoid').length;
-  const accuracy=total?(Math.round((wins/total)*100)) : 0;
+  const accuracy=total?Math.round((wins/total)*100):0;
   summary.innerHTML=`
-    📊 Total Signals: ${total}<br>
-    ✅ Win: ${wins}<br>
-    ❌ Loss: ${losses}<br>
-    ⚠️ Avoid: ${avoids}<br>
-    📈 Accuracy: ${accuracy}%
-  `;
+📊 Total Signals: ${total}
+✅ Win: ${wins}
+❌ Loss: ${losses}
+⚠️ Avoid: ${avoids}
+📈 Accuracy: ${accuracy}%`;
 }
 
 function buildSignalText(pair){
@@ -223,7 +221,15 @@ function buildSignalText(pair){
   const minutes = now.getMinutes()+Math.floor(Math.random()*3)+2;
   now.setMinutes(minutes);
   const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  return `🚀 Phantom AI\n\n💱 Pair: ${pair}\n⏰ Time: ${timeStr}\n\n📈 Strategy: Opposite Trade\n\n⚡ Note: Follow risk \nmanagement & check previous candle.`;
+  return `🚀 Phantom AI
+
+💱 Pair: ${pair}
+⏰ Time: ${timeStr}
+
+📈 Strategy: Opposite Trade
+
+⚡ Note: Follow risk 
+management & check previous candle.`;
 }
 
 document.getElementById('generateBtn').addEventListener('click',()=>{
@@ -232,7 +238,7 @@ document.getElementById('generateBtn').addEventListener('click',()=>{
   if(!type){alert("Select market type"); return;}
   if(!pair){alert("Enter pair name"); return;}
 
-  signalText.textContent="Phantom AI Analysis..."; 
+  signalText.textContent="Phantom AI Analysis...";
   signalButtons.style.display="none";
 
   setTimeout(()=>{
@@ -245,10 +251,12 @@ document.getElementById('generateBtn').addEventListener('click',()=>{
 // Signal Buttons
 function addSignal(status){
   const pair=document.getElementById('marketName').value.trim();
-  const signal=signalText.textContent;
-  history.push({pair,status,signal});
+  history.push({pair,status});
   sessionStorage.setItem('history',JSON.stringify(history));
   renderResults();
+  // Clear output box after adding
+  signalText.textContent="Press Generate to create a signal.";
+  signalButtons.style.display="none";
 }
 
 btnProfit.addEventListener('click',()=>addSignal('win'));
@@ -270,7 +278,17 @@ document.getElementById('copyResult').addEventListener('click',()=>{
   history.forEach(h=>{
     text+=`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}\n`;
   });
-  navigator.clipboard.writeText(text).then(()=>showToast());
+  const total=history.length;
+  const wins=history.filter(h=>h.status==='win').length;
+  const losses=history.filter(h=>h.status==='loss').length;
+  const avoids=history.filter(h=>h.status==='avoid').length;
+  const accuracy=total?Math.round((wins/total)*100):0;
+  text+=`\n📊 Total Signals: ${total}
+✅ Win: ${wins}
+❌ Loss: ${losses}
+⚠️ Avoid: ${avoids}
+📈 Accuracy: ${accuracy}%`;
+  copyText(text);
 });
 
 renderResults();
