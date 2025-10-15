@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Phantom AI — Signal Dashboard (Final)</title>
+<title>Phantom AI — Signal Dashboard</title>
 <style>
 :root{
   --bg:#070b1a; --text:#e7f1ff; --accent:#00ffc6; --border:#1b2445; --muted:#9fb0d6;
@@ -65,6 +65,8 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 .badge.expired{background:linear-gradient(90deg,#ffd9d9,#ff6b6b);color:#2b0707}
 .small-note{font-size:12px;color:var(--muted)}
 .close-x{position:absolute;right:14px;top:12px;border:none;background:transparent;color:var(--muted);font-weight:700;cursor:pointer}
+
+/* responsive */
 @media(max-width:720px){ .modal{padding:14px} .modal .grid{grid-template-columns:1fr} }
 </style>
 </head>
@@ -73,7 +75,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
   <div class="card" role="main">
     <div class="header">
       <div class="brand">
-        <span class="logo-circle"></span>
+        <span class="logo-circle" aria-hidden="true"></span>
         <div>
           <h1>Phantom AI</h1>
           <div class="slogan">AI Based Market Analysis System</div>
@@ -134,16 +136,16 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 <!-- trial popup -->
 <div class="trial-popup" id="trialPopup">
   You can generate only 2 signals per day in Free Trial.<br>
-  Click here to get License Key (<a href="https://t.me/TraderParvej" target="_blank">@TraderParvej</a>)
+  Click here to get License Key (@TraderParvej)
 </div>
 
-<!-- password modal (center) -->
+<!-- admin password popup -->
 <div class="modal-backdrop" id="passwordBackdrop" aria-hidden="true">
   <div class="modal">
     <button class="close-x" id="closePasswordModal">✕</button>
-    <h2 style="margin-bottom:8px">Enter Admin Password</h2>
+    <h2>Enter Admin Password</h2>
     <input id="adminPasswordInput" type="password" placeholder="Enter password" class="input-field">
-    <div style="text-align:right;margin-top:6px">
+    <div style="text-align:right;margin-top:10px">
       <button id="verifyAdminPasswordBtn" class="btn btn-small">Verify</button>
     </div>
   </div>
@@ -155,7 +157,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
     <button class="close-x" id="closeModal">✕</button>
     <h2 id="adminTitle">Admin Panel — License Generator</h2>
 
-    <div class="grid" style="margin-top:10px">
+    <div class="grid">
       <div>
         <label class="small-muted">Device ID</label>
         <input id="adminDeviceId" placeholder="Phantom-XXXX" class="input-field">
@@ -184,7 +186,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
         </div>
       </div>
 
-      <div class="full" style="margin-top:8px">
+      <div class="full">
         <div style="margin-top:6px"><strong>Existing Licenses</strong></div>
         <table class="licenses-table" id="licensesTable">
           <thead>
@@ -202,12 +204,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 <div class="toast" id="toast">Copied</div>
 
 <script>
-// -------------------- constants & storage keys --------------------
-const LICENSES_KEY = 'phantom_licenses_v1';        // stores { key: { device, user, expISO, note, createdAt } }
-const ACTIVE_LICENSE_KEY = 'phantom_active_license';
-const TRIAL_KEY = 'phantom_trial';
-
-// -------------------- device id (persistent) --------------------
+// ===== Device ID persistent =====
 function ensureDeviceId(){
   let id = localStorage.getItem('phantomDeviceId');
   if(!id){
@@ -219,23 +216,24 @@ function ensureDeviceId(){
 const deviceId = ensureDeviceId();
 document.getElementById('deviceId').textContent = deviceId;
 
-// -------------------- util: load/save licenses --------------------
-function loadLicenses(){ try { return JSON.parse(localStorage.getItem(LICENSES_KEY)||'{}'); } catch(e){ return {}; } }
+// ===== License Storage =====
+const LICENSES_KEY = 'phantom_licenses_v1';
+function loadLicenses(){ try{ return JSON.parse(localStorage.getItem(LICENSES_KEY)||'{}'); }catch(e){return{};} }
 function saveLicenses(obj){ localStorage.setItem(LICENSES_KEY, JSON.stringify(obj)); }
 
-// -------------------- toast --------------------
+// ===== Toast =====
 const toastEl = document.getElementById('toast');
-function showToast(msg="Copied"){ toastEl.textContent = msg; toastEl.classList.add('show'); setTimeout(()=> toastEl.classList.remove('show'), 1400); }
+function showToast(msg="Copied"){ toastEl.textContent=msg; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'),1600); }
 
-// -------------------- trial per-day --------------------
+// ===== Trial Data =====
 const todayStr = new Date().toISOString().slice(0,10);
-let trialData = JSON.parse(localStorage.getItem(TRIAL_KEY) || '{}');
-if(trialData.date !== todayStr){ trialData = { date: todayStr, count: 0 }; localStorage.setItem(TRIAL_KEY, JSON.stringify(trialData)); }
+let trialData = JSON.parse(localStorage.getItem('phantom_trial')||'{}');
+if(trialData.date!==todayStr){ trialData={date:todayStr,count:0}; localStorage.setItem('phantom_trial',JSON.stringify(trialData)); }
 
-// -------------------- UI refs --------------------
-const licenseInput = document.getElementById('licenseKey');
+// ===== UI Refs =====
+const licenseKeyInput = document.getElementById('licenseKey');
 const verifyBtn = document.getElementById('verifyBtn');
-const licenseStatusEl = document.getElementById('licenseStatus');
+const licenseStatusSpan = document.getElementById('licenseStatus');
 let licenseVerified = false;
 
 const generateBtn = document.getElementById('generateBtn');
@@ -253,13 +251,8 @@ const summary = document.getElementById('summary');
 const resetBtn = document.getElementById('resetBtn');
 const trialPopup = document.getElementById('trialPopup');
 
-// -------------------- admin modal refs --------------------
+// ===== Admin modal =====
 const adminFooter = document.getElementById('adminFooter');
-const passwordBackdrop = document.getElementById('passwordBackdrop');
-const closePasswordModal = document.getElementById('closePasswordModal');
-const verifyAdminPasswordBtn = document.getElementById('verifyAdminPasswordBtn');
-const adminPasswordInput = document.getElementById('adminPasswordInput');
-
 const modalBackdrop = document.getElementById('modalBackdrop');
 const modal = modalBackdrop.querySelector('.modal');
 const closeModalBtn = document.getElementById('closeModal');
@@ -270,302 +263,122 @@ const adminNoteInput = document.getElementById('adminNote');
 const generateLicenseBtn = document.getElementById('generateLicenseBtn');
 const licensesBody = document.getElementById('licensesBody');
 
-// -------------------- history --------------------
-let history = JSON.parse(sessionStorage.getItem('phantom_history') || '[]');
+// ===== Admin password popup =====
+const passwordBackdrop = document.getElementById('passwordBackdrop');
+const closePasswordModal = document.getElementById('closePasswordModal');
+const verifyAdminPasswordBtn = document.getElementById('verifyAdminPasswordBtn');
+const adminPasswordInput = document.getElementById('adminPasswordInput');
 
-// -------------------- helper: gen license key --------------------
-function generateLicenseKey(){
-  const r = Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0');
-  const t = Date.now().toString(36).slice(-6);
-  return `PHANTOM-${r}-${t}`.toUpperCase();
-}
-
-// -------------------- check saved active license on load --------------------
-function checkSavedLicenseOnLoad(){
-  const saved = JSON.parse(localStorage.getItem(ACTIVE_LICENSE_KEY) || 'null');
-  if(!saved) return;
-  const all = loadLicenses();
-  if(!all[saved.key]){ localStorage.removeItem(ACTIVE_LICENSE_KEY); return; }
-  const L = all[saved.key];
-  const nowISO = new Date().toISOString();
-  if(L.device !== deviceId){
-    // saved license not for this device -> remove saved (safe)
-    localStorage.removeItem(ACTIVE_LICENSE_KEY);
-    return;
-  }
-  if(L.expISO > nowISO){
-    licenseVerified = true;
-    licenseStatusEl.textContent = 'Active';
-    // disable verify UI to avoid re-enter
-    licenseInput.disabled = true;
-    verifyBtn.disabled = true;
-    verifyBtn.style.opacity = '.6';
-  } else {
-    // expired
-    localStorage.removeItem(ACTIVE_LICENSE_KEY);
-  }
-}
-checkSavedLicenseOnLoad();
-
-// -------------------- verify license (user side) --------------------
-verifyBtn.addEventListener('click', ()=>{
-  const key = (licenseInput.value || '').trim().toUpperCase();
-  if(!key){ alert('Enter a license key'); return; }
-  const all = loadLicenses();
-  if(!all[key]){ alert('Invalid License'); return; }
-  const L = all[key];
-  const nowISO = new Date().toISOString();
-  if(L.device !== deviceId){ alert('License not valid for this device'); return; }
-  if(L.expISO <= nowISO){ alert('License expired'); return; }
-  // success -> persist active license so it remains after reload/logout
-  localStorage.setItem(ACTIVE_LICENSE_KEY, JSON.stringify({ key }));
-  licenseVerified = true;
-  licenseStatusEl.textContent = 'Active';
-  licenseInput.disabled = true;
-  verifyBtn.disabled = true;
-  verifyBtn.style.opacity = '.6';
-  showToast('License Verified ✅');
-});
-
-// -------------------- admin: open password modal (centered) --------------------
 adminFooter.addEventListener('click', ()=>{
-  adminPasswordInput.value = '';
-  passwordBackdrop.style.display = 'flex';
-  setTimeout(()=> passwordBackdrop.querySelector('.modal').classList.add('show'), 10);
+  passwordBackdrop.style.display='flex';
+  setTimeout(()=> passwordBackdrop.querySelector('.modal').classList.add('show'),10);
 });
-closePasswordModal.addEventListener('click', ()=>{
+closePasswordModal.addEventListener('click', ()=> {
   passwordBackdrop.querySelector('.modal').classList.remove('show');
-  setTimeout(()=> passwordBackdrop.style.display = 'none', 180);
+  setTimeout(()=> passwordBackdrop.style.display='none',180);
 });
 verifyAdminPasswordBtn.addEventListener('click', ()=>{
-  const pwd = (adminPasswordInput.value || '').trim();
-  if(pwd === '@TraderParvej+'){
-    // close password modal then open admin modal
+  const pwd = adminPasswordInput.value.trim();
+  if(pwd==="@TraderParvej+"){
     passwordBackdrop.querySelector('.modal').classList.remove('show');
-    setTimeout(()=> passwordBackdrop.style.display = 'none', 180);
+    setTimeout(()=> passwordBackdrop.style.display='none',180);
+    adminPasswordInput.value='';
     openAdminModal();
-  } else {
-    alert('Wrong password!');
-  }
+  }else{ alert("Wrong password!"); }
 });
 
-// -------------------- admin: open/close admin modal --------------------
+// ===== Admin modal open/close =====
 function openAdminModal(){
-  adminDeviceIdInput.value = deviceId;
+  modalBackdrop.style.display='flex';
+  setTimeout(()=> modal.classList.add('show'),10);
+  adminDeviceIdInput.value=deviceId;
   renderLicensesTable();
-  modalBackdrop.style.display = 'flex';
-  setTimeout(()=> modal.classList.add('show'), 10);
 }
 closeModalBtn.addEventListener('click', ()=>{
   modal.classList.remove('show');
-  setTimeout(()=> modalBackdrop.style.display = 'none', 180);
+  setTimeout(()=> modalBackdrop.style.display='none',180);
 });
-modalBackdrop.addEventListener('click', (e)=> { if(e.target === modalBackdrop) { modal.classList.remove('show'); setTimeout(()=> modalBackdrop.style.display='none',180); } });
 
-// -------------------- admin: generate license --------------------
+// ===== Generate license =====
 generateLicenseBtn.addEventListener('click', ()=>{
-  const device = (adminDeviceIdInput.value || '').trim();
-  const user = (adminUserNameInput.value || '').trim();
-  const days = parseInt(adminValidityInput.value, 10) || 0;
-  const note = (adminNoteInput.value || '').trim();
-  if(!device || !user || days <= 0){ alert('Fill Device ID, User Name and Validity(days) correctly'); return; }
-  const key = generateLicenseKey();
-  const createdAt = new Date().toISOString();
-  const expDate = new Date(Date.now() + days*24*60*60*1000);
-  const expISO = expDate.toISOString();
-  const obj = loadLicenses();
-  obj[key] = { device, user, expISO, note, createdAt };
-  saveLicenses(obj);
+  const device = adminDeviceIdInput.value.trim();
+  const user = adminUserNameInput.value.trim();
+  const days = parseInt(adminValidityInput.value)||0;
+  const note = adminNoteInput.value.trim();
+  if(!device || !user || days<=0){ alert("Fill all fields correctly"); return; }
+  const key = 'PH-'+Math.random().toString(36).substring(2,10).toUpperCase();
+  const expDate = new Date(); expDate.setDate(expDate.getDate()+days);
+  const licObj = loadLicenses();
+  licObj[key] = {device,user,exp:expDate.toISOString().slice(0,10),note};
+  saveLicenses(licObj);
   renderLicensesTable();
-  // copy key to clipboard and notify
-  navigator.clipboard.writeText(key).then(()=> showToast('License copied'));
-  alert(`License generated:\n\nKey: ${key}\nDevice: ${device}\nUser: ${user}\nValid until: ${expDate.toLocaleString()}`);
 });
-
-// -------------------- render licenses table --------------------
 function renderLicensesTable(){
   const licObj = loadLicenses();
-  licensesBody.innerHTML = '';
-  const now = new Date();
-  const keys = Object.keys(licObj).sort((a,b)=> licObj[b].createdAt.localeCompare(licObj[a].createdAt));
-  if(keys.length === 0){
-    licensesBody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);font-size:13px">No licenses yet.</td></tr>`;
-    return;
+  licensesBody.innerHTML='';
+  const today = todayStr;
+  for(const k in licObj){
+    const l = licObj[k];
+    const status = (l.exp>=today)?'Active':'Expired';
+    licensesBody.innerHTML+=<tr>
+      <td>${k}</td><td>${l.device}</td><td>${l.user}</td><td>${l.exp}</td>
+      <td><span class="badge ${status.toLowerCase()}">${status}</span></td>
+      <td><button class="btn btn-small btn-danger" onclick="deleteLicense('${k}')">Delete</button></td>
+    </tr>;
   }
-  for(const k of keys){
-    const L = licObj[k];
-    const exp = new Date(L.expISO);
-    const status = exp > now ? 'Active' : 'Expired';
-    const statusClass = status === 'Active' ? 'badge active' : 'badge expired';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="max-width:160px;word-break:break-word;font-weight:700">${k}</td>
-      <td>${escapeHtml(L.device)}</td>
-      <td>${escapeHtml(L.user)}</td>
-      <td>${exp.toLocaleString()}</td>
-      <td><span class="${statusClass}">${status}</span></td>
-      <td>
-        <button class="btn-small" data-copy="${k}" style="padding:6px 8px">Copy</button>
-        <button class="btn-small btn-danger" data-revoke="${k}" style="padding:6px 8px;margin-left:6px">Revoke</button>
-      </td>
-    `;
-    licensesBody.appendChild(tr);
-  }
-  // attach handlers
-  licensesBody.querySelectorAll('button[data-copy]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const k = btn.getAttribute('data-copy');
-      navigator.clipboard.writeText(k).then(()=> showToast('License Copied'));
-    });
-  });
-  licensesBody.querySelectorAll('button[data-revoke]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const k = btn.getAttribute('data-revoke');
-      if(confirm(`Revoke license ${k}?`)){
-        const obj = loadLicenses();
-        delete obj[k];
-        saveLicenses(obj);
-        // if revoked license is the one currently active for this device, remove saved active
-        const saved = JSON.parse(localStorage.getItem(ACTIVE_LICENSE_KEY) || 'null');
-        if(saved && saved.key === k) localStorage.removeItem(ACTIVE_LICENSE_KEY);
-        renderLicensesTable();
-        showToast('License revoked');
-      }
-    });
-  });
 }
+function deleteLicense(k){ const obj=loadLicenses(); delete obj[k]; saveLicenses(obj); renderLicensesTable(); }
 
-// -------------------- license verify persists (improve) --------------------
-function isLicenseValidForThisDevice(key){
-  const all = loadLicenses();
-  if(!all[key]) return false;
-  const L = all[key];
-  if(L.device !== deviceId) return false;
-  if(L.expISO <= new Date().toISOString()) return false;
-  return true;
-}
+// ===== License verify =====
+verifyBtn.addEventListener('click',()=>{
+  const key = licenseKeyInput.value.trim();
+  const licObj = loadLicenses();
+  if(key in licObj){
+    const today = todayStr;
+    if(licObj[key].exp>=today){
+      licenseVerified=true;
+      licenseStatusSpan.textContent='Active';
+      showToast("License Verified ✅");
+    }else{ alert("License Expired"); }
+  }else{ alert("Invalid License"); }
+});
 
-// -------------------- generate signal logic --------------------
-generateBtn.addEventListener('click', ()=>{
-  const type = (marketType.value || '').trim();
-  const pair = (marketName.value || '').trim();
-  if(!type){ alert('Select Market Type'); return; }
-  if(!pair){ alert('Enter Pair Name'); return; }
-  // trial limit check
-  if(!licenseVerified && trialData.count >= 2){
-    // show trial popup
-    trialPopup.style.display = 'block';
-    setTimeout(()=> trialPopup.style.display = 'none', 4200);
-    return;
+// ===== Generate signal =====
+generateBtn.addEventListener('click',()=>{
+  const market = marketName.value.trim();
+  if(!market){ alert("Enter Market Name"); return; }
+  if(!licenseVerified && trialData.count>=2){
+    trialPopup.style.display='block'; return;
   }
-  // show generating...
-  signalText.innerHTML = `<span style="font-weight:800;opacity:.95">Phantom AI Analysis in progress...</span>`;
-  signalButtons.style.display = 'none';
-  setTimeout(()=>{
-    const now = new Date();
-    now.setMinutes(now.getMinutes() + (2 + Math.floor(Math.random()*2)));
-    const hh = String(now.getHours()).padStart(2,'0');
-    const mm = String(now.getMinutes()).padStart(2,'0');
-    const txt = `🚀 Phantom AI\n\n💱 Pair: ${pair}\n⏰ Time: ${hh}:${mm}\n\n📈 Strategy: Opposite Trade\n\n⚡ Note: Follow risk management & check previous candle.`;
-    signalText.textContent = txt;
-    signalButtons.style.display = 'flex';
-    if(!licenseVerified){
-      trialData.count++;
-      localStorage.setItem(TRIAL_KEY, JSON.stringify(trialData));
-      if(trialData.count >= 2){
-        // show trial popup after small delay
-        setTimeout(()=> { trialPopup.style.display='block'; setTimeout(()=> trialPopup.style.display='none', 4000); }, 600);
-      }
-    }
-  }, 900);
+  if(!licenseVerified){ trialData.count++; localStorage.setItem('phantom_trial',JSON.stringify(trialData)); }
+
+  const time = new Date(); time.setMinutes(time.getMinutes()+2+Math.floor(Math.random()*2));
+  signalText.textContent = ${market} — Signal at ${time.getHours().toString().padStart(2,'0')}:${time.getMinutes().toString().padStart(2,'0')};
+  signalButtons.style.display='flex';
 });
 
-// -------------------- copy & result handling --------------------
-copySignal.addEventListener('click', ()=> {
-  navigator.clipboard.writeText(signalText.textContent || '').then(()=> showToast('Signal copied'));
-});
-copyResult.addEventListener('click', ()=> {
-  navigator.clipboard.writeText(resultList.textContent || '').then(()=> showToast('Results copied'));
-});
+// ===== Copy signal/result =====
+copySignal.addEventListener('click',()=>{ navigator.clipboard.writeText(signalText.textContent); showToast(); });
+copyResult.addEventListener('click',()=>{ navigator.clipboard.writeText(resultList.textContent); showToast(); });
 
-btnProfit.addEventListener('click', ()=> addResult('win'));
-btnLoss.addEventListener('click', ()=> addResult('loss'));
-btnAvoid.addEventListener('click', ()=> addResult('avoid'));
+// ===== Signal buttons =====
+btnProfit.addEventListener('click',()=>addResult('✅ Profit'));
+btnLoss.addEventListener('click',()=>addResult('❌ Loss'));
+btnAvoid.addEventListener('click',()=>addResult('⚠️ Avoid'));
 
-function addResult(status){
-  const pair = (marketName.value || '').trim();
-  const entry = { pair, status, at: new Date().toISOString() };
-  history.push(entry);
-  sessionStorage.setItem('phantom_history', JSON.stringify(history));
-  renderHistory();
-  signalButtons.style.display = 'none';
+function addResult(txt){
+  resultList.textContent += signalText.textContent + ' — '+txt+'\n';
+  summary.textContent = 'Total: '+resultList.textContent.split('\n').filter(s=>s).length;
+  signalButtons.style.display='none';
   signalText.textContent = 'Press Generate to create a signal.';
 }
 
-function renderHistory(){
-  if(history.length === 0){ resultList.textContent = 'No signals yet.'; summary.textContent = ''; return; }
-  resultList.textContent = history.map(h=> `${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'} (${new Date(h.at).toLocaleString()})`).join('\n');
-  const total = history.length;
-  const wins = history.filter(h=>h.status==='win').length;
-  const losses = history.filter(h=>h.status==='loss').length;
-  const avoids = history.filter(h=>h.status==='avoid').length;
-  const acc = (wins+losses)>0 ? Math.round((wins/(wins+losses))*100) : 0;
-  summary.textContent = `📊 Total Signals: ${total}\n✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}\n📈 Accuracy: ${acc}%`;
-}
-renderHistory();
+// ===== Reset =====
+resetBtn.addEventListener('click',()=>{ resultList.textContent=''; summary.textContent=''; signalText.textContent='Press Generate to create a signal.'; trialData.count=0; localStorage.setItem('phantom_trial',JSON.stringify(trialData)); trialPopup.style.display='none'; });
 
-// -------------------- reset --------------------
-resetBtn.addEventListener('click', ()=>{
-  if(confirm('Clear all recorded signals?')){
-    history = [];
-    sessionStorage.removeItem('phantom_history');
-    renderHistory();
-    trialData.count = 0;
-    localStorage.setItem(TRIAL_KEY, JSON.stringify(trialData));
-    showToast('History cleared');
-  }
-});
+// ===== Trial popup click =====
+trialPopup.addEventListener('click',()=>{ trialPopup.style.display='none'; licenseKeyInput.focus(); });
 
-// -------------------- license verification that persists after reload --------------------
-(function tryRestoreSavedActive(){
-  const saved = JSON.parse(localStorage.getItem(ACTIVE_LICENSE_KEY) || 'null');
-  if(saved && saved.key){
-    // check validity & device
-    if(isLicenseValidForThisDevice(saved.key)){
-      licenseVerified = true;
-      licenseStatusEl.textContent = 'Active';
-      licenseInput.disabled = true;
-      verifyBtn.disabled = true;
-      verifyBtn.style.opacity = '.6';
-    } else {
-      // invalid/expired -> remove
-      localStorage.removeItem(ACTIVE_LICENSE_KEY);
-    }
-  }
-})();
-
-// -------------------- helper: escape html --------------------
-function escapeHtml(s=''){ return s.replace(/[&<>"']/g, (m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-// -------------------- initial render for admin table if opened later --------------------
-function renderLicensesTableIfVisible(){ if(modalBackdrop.style.display === 'flex'){ renderLicensesTable(); } }
-window.addEventListener('focus', renderLicensesTableIfVisible);
-
-// -------------------- allow deleting license via global (used in older code patterns) --------------------
-window.deleteLicense = function(k){
-  const obj = loadLicenses();
-  if(!obj[k]) return;
-  if(!confirm('Delete license '+k+'?')) return;
-  delete obj[k];
-  saveLicenses(obj);
-  // if deleted license is currently active for this device, remove active record
-  const saved = JSON.parse(localStorage.getItem(ACTIVE_LICENSE_KEY) || 'null');
-  if(saved && saved.key === k) localStorage.removeItem(ACTIVE_LICENSE_KEY);
-  renderLicensesTable();
-  showToast('License deleted');
-};
-
-// -------------------- done --------------------
 </script>
 </body>
 </html>
