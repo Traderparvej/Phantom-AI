@@ -29,7 +29,7 @@ body{
 }
 .card{
   width:100%;
-  max-width:480px;
+  max-width:820px;
   border-radius:16px;
   background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   border:1px solid var(--border);
@@ -37,10 +37,10 @@ body{
   padding:26px;
   backdrop-filter: blur(8px);
 }
-.header{display:flex;align-items:center;justify-content:center;margin-bottom:18px}
-.header h1{
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand h1{
   margin:0;
-  font-size:24px;
+  font-size:22px;
   font-weight:700;
   background:linear-gradient(90deg,#00ffc6,#42a5ff);
   -webkit-background-clip:text;
@@ -60,7 +60,6 @@ body{
   margin-bottom:12px;
 }
 .btn{
-  width:100%;
   padding:12px 16px;
   border-radius:10px;
   border:none;
@@ -71,6 +70,52 @@ body{
   transition:transform .14s ease,opacity .14s;
 }
 .btn:active{transform:translateY(1px);}
+.btn.secondary{
+  background:transparent;
+  color:var(--muted);
+  border:1px solid rgba(255,255,255,0.04);
+}
+.output-box{
+  margin-top:18px;
+  padding:18px;
+  border-radius:12px;
+  background:rgba(0,0,0,0.35);
+  border:1px solid rgba(255,255,255,0.04);
+  min-height:120px;
+  color:#cdefff;
+  font-weight:600;
+  line-height:1.6;
+  white-space:pre-line;
+  position:relative;
+}
+.result-box{
+  margin-top:18px;
+  padding:18px;
+  border-radius:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  border:1px solid rgba(255,255,255,0.03);
+  min-height:190px;
+  color:var(--text);
+  font-weight:600;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  position:relative;
+}
+.copy-btn{
+  position:absolute;
+  top:12px;
+  right:12px;
+  padding:6px 10px;
+  border-radius:8px;
+  border:none;
+  background:linear-gradient(90deg,#00ffc6,#42a5ff);
+  color:#00121a;
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+  display:none;
+}
 .modal-backdrop{
   position:fixed;
   inset:0;
@@ -89,13 +134,12 @@ body{
   max-width:520px;
   border-radius:14px;
   background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  padding:24px;
+  padding:20px;
   border:1px solid rgba(255,255,255,0.06);
-  box-shadow:0 12px 40px rgba(0,0,0,0.7);
+  box-shadow:0 10px 40px rgba(0,0,0,0.6);
   transform:translateY(20px);
   opacity:0;
   transition:all .3s ease;
-  text-align:center;
 }
 .modal-backdrop.show .modal{
   transform:translateY(0);
@@ -106,10 +150,9 @@ body{
   color:#cfefff;
   white-space:pre-line;
   line-height:1.6;
-  margin-bottom:16px;
-  font-size:16px;
+  margin-bottom:12px;
 }
-.modal .controls{display:flex;gap:10px;justify-content:center;margin-bottom:12px}
+.modal .controls{display:flex;gap:10px;justify-content:flex-end}
 .modal .controls .btn-profit{
   background:linear-gradient(90deg,#5eead4,#22c55e);
   color:#042011;
@@ -117,22 +160,6 @@ body{
 .modal .controls .btn-loss{
   background:linear-gradient(90deg,#ff9b9b,#ff6b6b);
   color:#2b0707;
-}
-.modal .copy-btn, .modal .telegram-btn{
-  margin-top:6px;
-  padding:10px 14px;
-  border-radius:10px;
-  border:none;
-  cursor:pointer;
-  font-weight:700;
-}
-.modal .copy-btn{
-  background:linear-gradient(90deg,#00ffc6,#42a5ff);
-  color:#00121a;
-}
-.modal .telegram-btn{
-  background:linear-gradient(90deg,#42a5ff,#ff00f5);
-  color:#00121a;
 }
 .toast{
   position:fixed;
@@ -149,11 +176,15 @@ body{
   z-index:1200;
 }
 .toast.show{opacity:1;transform:translateY(0);}
+.clear-btn{margin-top:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer}
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="header"><h1>Phantom AI</h1></div>
+<div class="card" role="main">
+  <div class="header">
+    <div class="brand"><h1>Phantom AI</h1></div>
+    <div class="small-muted">Premium Signal Panel</div>
+  </div>
   <label>Select Market Type</label>
   <select id="marketType" class="select-field">
     <option value="">-- Choose Market --</option>
@@ -163,33 +194,58 @@ body{
   <label>Enter Pair Name</label>
   <input id="marketName" class="input-field" placeholder="e.g. EUR/JPY or USD PKR">
   <button id="generateBtn" class="btn">Generate</button>
+
+  <div class="output-box" id="outputBox">
+    <button class="copy-btn" id="copyMain">Copy</button>
+    <div id="outputPlaceholder" style="opacity:0.6;">Press <strong>Generate</strong> to create a signal.</div>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:800">🏁 Phantom AI Result 🏁</div>
+      <button class="clear-btn" id="clearBtn">Reset</button>
+    </div>
+    <div id="resultList" style="white-space:pre-line;margin-top:8px;color:#cfefff;flex:1;"></div>
+    <div id="summary" class="small-muted"></div>
+    <button class="btn secondary" id="telegramShare" style="margin-top:8px">Share on Telegram</button>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
-  <div class="modal">
-    <div class="signal" id="modalSignal">Phantom AI Analysis...</div>
-    <div class="controls">
-      <button class="btn-profit" id="btnProfit">✅ Profit</button>
-      <button class="btn-loss" id="btnLoss">❌ Loss</button>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-top">
+      <div class="title" id="modalTitle">Phantom AI Analysis...</div>
+      <div class="small" id="modalType">--</div>
     </div>
-    <button class="copy-btn" id="modalCopy">Copy Signal</button>
-    <button class="telegram-btn" id="telegramShare">Share on Telegram</button>
+    <div class="signal" id="modalSignal"></div>
+    <div class="controls">
+      <button class="btn btn-profit" id="btnProfit">✅ Profit</button>
+      <button class="btn btn-loss" id="btnLoss">❌ Loss</button>
+    </div>
+    <div style="margin-top:10px;text-align:right;">
+      <button class="btn secondary" id="modalCopy">Copy Signal</button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast">Signal Copied!</div>
 
 <script>
+let history = JSON.parse(sessionStorage.getItem('history')||'[]');
+const outputBox=document.getElementById('outputBox');
+const outputPlaceholder=document.getElementById('outputPlaceholder');
+const resultList=document.getElementById('resultList');
+const summary=document.getElementById('summary');
 const modalBackdrop=document.getElementById('modalBackdrop');
 const modalSignal=document.getElementById('modalSignal');
+const modalType=document.getElementById('modalType');
+const modalCopy=document.getElementById('modalCopy');
 const btnProfit=document.getElementById('btnProfit');
 const btnLoss=document.getElementById('btnLoss');
-const modalCopy=document.getElementById('modalCopy');
-const telegramShare=document.getElementById('telegramShare');
-const generateBtn=document.getElementById('generateBtn');
+const copyMain=document.getElementById('copyMain');
 const toast=document.getElementById('toast');
-
-let history = [];
+const clearBtn=document.getElementById('clearBtn');
+const telegramShare=document.getElementById('telegramShare');
 
 function showToast(text="Signal Copied!"){
   toast.textContent=text;
@@ -197,43 +253,78 @@ function showToast(text="Signal Copied!"){
   setTimeout(()=>toast.classList.remove('show'),1500);
 }
 
-function buildSignal(pair,timeStr){
+function renderResults(){
+  const lines=history.map(h=>`${h.pair} ${h.status==='win'?'✅':'❌'}`).join("\n");
+  resultList.textContent=lines||"No signals yet.";
+  const total=history.length;
+  const wins=history.filter(h=>h.status==='win').length;
+  const losses=total-wins;
+  const accuracy=total?Math.round((wins/total)*100):0;
+  summary.innerHTML=`
+    📊 Total Signals: ${total}<br>
+    ✅ Win: ${wins}<br>
+    ❌ Loss: ${losses}<br>
+    📈 Accuracy: ${accuracy}%
+  `;
+}
+
+function buildSignalText(pair,timeStr){
   return `🚀 Phantom AI\n\n💱 Pair: ${pair}\n⏰ Time: ${timeStr}\n\n📈 Strategy: Opposite Trade\n\n⚡ Note: Follow risk \nmanagement & check previous candle.`;
 }
 
 function openModal(pair,type,timeStr){
-  modalSignal.textContent = buildSignal(pair,timeStr);
+  modalSignal.textContent=buildSignalText(pair,timeStr);
+  modalType.textContent=type||'';
   modalBackdrop.classList.add('show');
 }
 
 function closeModal(){modalBackdrop.classList.remove('show');}
 
-generateBtn.addEventListener('click',()=>{
+function copyTextToClipboard(text){
+  if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(text);
+  const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);return Promise.resolve();
+}
+
+document.getElementById('generateBtn').addEventListener('click',()=>{
   const type=document.getElementById('marketType').value.trim();
   const pair=document.getElementById('marketName').value.trim();
-  if(!type){alert("Select market type"); return;}
-  if(!pair){alert("Enter pair name"); return;}
-  modalSignal.textContent="Analyzing Phantom AI...";
-  modalBackdrop.classList.add('show');
+  if(!type){outputBox.innerHTML="⚠️ Please select a market type."; return;}
+  if(!pair){outputBox.innerHTML="⚠️ Please enter a pair name."; return;}
+  outputBox.innerHTML=`<div style="opacity:0.6;">Analyzing Phantom AI...</div>`;
+  copyMain.style.display='none';
   setTimeout(()=>{
     const now=new Date();
-    now.setMinutes(now.getMinutes() + Math.floor(Math.random()*3+2));
+    const randomMinutes=Math.floor(Math.random()*3)+2;
+    now.setMinutes(now.getMinutes()+randomMinutes);
     const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    modalSignal.textContent = buildSignal(pair,timeStr);
-    history.push({pair,time:timeStr,status:"pending"});
+    openModal(pair,type,timeStr);
+    const preview=buildSignalText(pair,timeStr);
+    outputBox.innerHTML=`<div style="white-space:pre-line;font-weight:700;color:#cfefff;">${preview}</div>`;
+    copyMain.style.display='inline-block';
+    copyMain.onclick=()=>copyTextToClipboard(preview).then(()=>showToast());
+    modalCopy.onclick=()=>copyTextToClipboard(preview).then(()=>showToast());
+    const addResult=(status)=>{
+      history.push({pair:pair,time:timeStr,status:status});
+      sessionStorage.setItem('history',JSON.stringify(history));
+      renderResults();
+      closeModal();
+    };
+    btnProfit.onclick=()=>addResult('win');
+    btnLoss.onclick=()=>addResult('loss');
   },3000);
 });
 
-btnProfit.onclick=()=>{history[history.length-1].status="win"; closeModal(); showToast("Recorded as PROFIT");};
-btnLoss.onclick=()=>{history[history.length-1].status="loss"; closeModal(); showToast("Recorded as LOSS");};
-modalCopy.onclick=()=>copyText(modalSignal.textContent);
-telegramShare.onclick=()=>window.open(`https://t.me/share/url?url=&text=${encodeURIComponent(modalSignal.textContent)}`,'_blank');
-
-function copyText(text){
-  navigator.clipboard.writeText(text).then(()=>showToast());
-}
-
-modalBackdrop.addEventListener('click',(e)=>{if(e.target===modalBackdrop) closeModal();});
+modalBackdrop.addEventListener('click',(e)=>{if(e.target===modalBackdrop)closeModal();});
+clearBtn.addEventListener('click',()=>{
+  if(!confirm('Clear all recorded signals?'))return;
+  history=[];sessionStorage.removeItem('history');renderResults();
+});
+telegramShare.addEventListener('click',()=>{
+  const txt=history.map(h=>`${h.pair} ${h.status==='win'?'✅':'❌'}`).join("\n");
+  const url=`https://t.me/share/url?url=&text=${encodeURIComponent('🏁 Phantom AI Result 🏁\n\n'+txt)}`;
+  window.open(url,'_blank');
+});
+renderResults();
 </script>
 </body>
 </html>
