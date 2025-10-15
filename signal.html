@@ -36,15 +36,18 @@ body{
   padding:20px;
   backdrop-filter: blur(8px);
 }
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.header{
+  display:flex;
+  justify-content:center;
+  margin-bottom:12px;
+}
 .brand h1{
-  margin:0;
-  font-size:22px;
-  font-weight:700;
+  font-size:26px;
+  font-weight:800;
   background:linear-gradient(90deg,#00ffc6,#42a5ff);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
-  letter-spacing:0.6px;
+  letter-spacing:1px;
 }
 .label{color:var(--muted);font-size:13px;margin-bottom:8px;display:block;}
 .select-field, .input-field{
@@ -138,6 +141,10 @@ body{
 </head>
 <body>
 <div class="card">
+  <div class="header">
+    <div class="brand"><h1>Phantom AI</h1></div>
+  </div>
+
   <div class="device-id">Device ID: <span id="deviceId"></span></div>
 
   <div class="license-box">
@@ -211,112 +218,4 @@ function showToast(text="Signal Copied!"){
 function renderResults(){
   const lines=history.map(h=>{
     const symbol=h.status==='win'?'✅':(h.status==='loss'?'❌':'⚠️');
-    return `${h.pair} ${symbol}`;
-  }).join("\n");
-  resultList.textContent=lines||"No signals yet.";
-  const total=history.length;
-  const wins=history.filter(h=>h.status==='win').length;
-  const losses=history.filter(h=>h.status==='loss').length;
-  const avoids=history.filter(h=>h.status==='avoid').length;
-  const accuracy=total?(Math.round((wins/total)*100)):'0';
-  summary.innerHTML=`
-    📊 Total Signals: ${total}<br>
-    ✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}<br>
-    📈 Accuracy: ${accuracy}%
-  `;
-}
-
-function buildSignalText(pair,timeStr){
-  return `🚀 Phantom AI\n\n💱 Pair: ${pair}\n⏰ Time: ${timeStr}\n\n📈 Strategy: Opposite Trade\n\n⚡ Note: Follow risk \nmanagement & check previous candle.`;
-}
-
-function copyText(text){navigator.clipboard.writeText(text).then(()=>showToast());}
-
-verifyLicense.addEventListener('click',()=>{
-  const key=licenseKeyInput.value.trim();
-  if(!key){alert('Enter license key');return;}
-  licenseActive=true;
-  licenseExpiry=new Date();
-  licenseExpiry.setDate(licenseExpiry.getDate()+30);
-  licenseStatus.textContent=`License Active until ${licenseExpiry.toLocaleDateString()}`;
-});
-
-generateBtn.addEventListener('click',()=>{
-  if(!licenseActive && history.filter(h=>h.date===new Date().toDateString()).length>=2){
-    alert('Free limit reached. Use license key to generate more.');
-    return;
-  }
-  const type=document.getElementById('marketType').value.trim();
-  const pair=document.getElementById('marketName').value.trim();
-  if(!type){outputBox.innerHTML="⚠️ Please select market type";return;}
-  if(!pair){outputBox.innerHTML="⚠️ Enter pair name";return;}
-  outputBox.innerHTML='<div style="opacity:0.6;">Phantom AI Analysis...</div>';
-  copyOutput.style.display='none';
-  setTimeout(()=>{
-    const now=new Date();
-    const randomMinutes=Math.floor(Math.random()*2)+2;
-    now.setMinutes(now.getMinutes()+randomMinutes);
-    const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    const signalText=buildSignalText(pair,timeStr);
-    outputBox.innerHTML=`<div style="white-space:pre-line;font-weight:700;color:#cfefff;">${signalText}</div>`;
-    copyOutput.style.display='inline-block';
-    copyOutput.onclick=()=>copyText(signalText);
-
-    // Add to history buttons
-    const addSignal=(status)=>{
-      history.push({pair:pair,status:status,date:new Date().toDateString()});
-      sessionStorage.setItem('history',JSON.stringify(history));
-      renderResults();
-      outputBox.innerHTML='<div style="opacity:0.6;">Press Generate to create a signal.</div>';
-      copyOutput.style.display='none';
-    };
-
-    const profitBtn=document.createElement('button');
-    profitBtn.textContent='✅ Profit';
-    profitBtn.className='btn';
-    profitBtn.style.marginTop='10px';
-    profitBtn.onclick=()=>addSignal('win');
-
-    const lossBtn=document.createElement('button');
-    lossBtn.textContent='❌ Loss';
-    lossBtn.className='btn';
-    lossBtn.style.marginTop='10px';
-    lossBtn.onclick=()=>addSignal('loss');
-
-    const avoidBtn=document.createElement('button');
-    avoidBtn.textContent='⚠️ Avoid';
-    avoidBtn.className='btn';
-    avoidBtn.style.marginTop='10px';
-    avoidBtn.onclick=()=>addSignal('avoid');
-
-    outputBox.appendChild(profitBtn);
-    outputBox.appendChild(lossBtn);
-    outputBox.appendChild(avoidBtn);
-
-  },3000);
-});
-
-clearBtn.addEventListener('click',()=>{
-  if(!confirm('Clear all recorded signals?'))return;
-  history=[];sessionStorage.removeItem('history');renderResults();
-});
-
-copyResult.addEventListener('click',()=>{
-  const header='🏁 Phantom AI Result 🏁\n\n';
-  const txt=history.map(h=>{
-    const symbol=h.status==='win'?'✅':(h.status==='loss'?'❌':'⚠️');
-    return `${h.pair} ${symbol}`;
-  }).join("\n");
-  const total=history.length;
-  const wins=history.filter(h=>h.status==='win').length;
-  const losses=history.filter(h=>h.status==='loss').length;
-  const avoids=history.filter(h=>h.status==='avoid').length;
-  const accuracy=total?Math.round((wins/total)*100):0;
-  const finalText=`${header}${txt}\n\n📊 Total Signals: ${total}\n✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}\n📈 Accuracy: ${accuracy}%`;
-  copyText(finalText);
-});
-
-renderResults();
-</script>
-</body>
-</html>
+    return `${
