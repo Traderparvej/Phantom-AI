@@ -169,6 +169,28 @@ body{
   color:var(--muted);
   cursor:pointer;
 }
+/* Center trial popup */
+.trial-popup{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:linear-gradient(90deg,#00ffc6,#42a5ff);
+  color:#00121a;
+  padding:18px 24px;
+  border-radius:14px;
+  font-weight:700;
+  font-size:15px;
+  text-align:center;
+  z-index:2000;
+  box-shadow:0 12px 30px rgba(0,0,0,0.5);
+  display:none;
+  cursor:pointer;
+  max-width:300px;
+}
+.trial-popup:hover{
+  opacity:0.9;
+}
 </style>
 </head>
 <body>
@@ -214,6 +236,12 @@ body{
     <div id="summary" class="small-muted"></div>
     <button class="reset-btn" id="resetBtn">Reset</button>
   </div>
+</div>
+
+<!-- Trial popup -->
+<div class="trial-popup" id="trialPopup">
+  You can generate only 2 signals per day in Free Trial.<br>
+  Click here to get License Key (@TraderParvej)
 </div>
 
 <div class="toast" id="toast">Signal Copied!</div>
@@ -267,6 +295,16 @@ if(trialData.date !== today){
     localStorage.setItem('trialData', JSON.stringify(trialData));
 }
 
+// Trial popup
+const trialPopup = document.getElementById('trialPopup');
+function showTrialPopup(){
+  trialPopup.style.display='block';
+  setTimeout(()=>{trialPopup.style.display='none';},4000);
+}
+trialPopup.addEventListener('click',()=>{
+  window.open("https://t.me/TraderParvej","_blank");
+});
+
 // Render Result Box
 function renderResults(){
   const lines=history.map(h=>`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}`).join("\n");
@@ -309,7 +347,7 @@ document.getElementById('generateBtn').addEventListener('click',()=>{
   // Trial Limit Check
   if(!licenseVerified){
       if(trialData.count >= 2){
-          alert("You can generate only 2 signals per day in Free Trial. Contact @TraderParvej for License Key.");
+          showTrialPopup();
           return;
       } else {
           trialData.count++;
