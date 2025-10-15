@@ -13,6 +13,7 @@
   --muted:#9fb0d6;
   --success:#22c55e;
   --danger:#ff6b6b;
+  --warn:#facc15;
 }
 *{box-sizing:border-box;}
 body{
@@ -69,6 +70,9 @@ body{
   transition:transform .14s ease,opacity .14s;
 }
 .btn:active{transform:translateY(1px);}
+.btn-profit{background:linear-gradient(90deg,#5eead4,#22c55e); color:#042011;}
+.btn-loss{background:linear-gradient(90deg,#ff9b9b,#ff6b6b); color:#2b0707;}
+.btn-avoid{background:linear-gradient(90deg,#facc15,#fbbf24); color:#00121a;}
 .output-box{
   margin-top:18px;
   padding:18px;
@@ -131,6 +135,7 @@ body{
 }
 .toast.show{opacity:1;transform:translateY(0);}
 .clear-btn{margin-top:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer}
+.signal-buttons{margin-top:12px;display:flex;gap:10px;}
 </style>
 </head>
 <body>
@@ -139,16 +144,31 @@ body{
     <div class="brand"><h1>Phantom AI</h1></div>
     <div class="small-muted">Premium Signal Panel</div>
   </div>
+
   <label>Select Market Type</label>
   <select id="marketType" class="select-field">
     <option value="">-- Choose Market --</option>
     <option value="Real Market">Real Market</option>
     <option value="OTC Market">OTC Market</option>
   </select>
+
   <label>Enter Pair Name</label>
   <input id="marketName" class="input-field" placeholder="e.g. EUR/JPY or USD PKR">
+
   <button id="generateBtn" class="btn">Generate</button>
 
+  <!-- Signal Output Box -->
+  <div class="output-box" id="outputBox">
+    <button class="copy-btn" id="copySignal">Copy</button>
+    <div id="signalText" style="opacity:0.6;">Press Generate to create a signal.</div>
+    <div class="signal-buttons" id="signalButtons" style="display:none;">
+      <button class="btn btn-profit" id="btnProfit">✅ Profit</button>
+      <button class="btn btn-loss" id="btnLoss">❌ Loss</button>
+      <button class="btn btn-avoid" id="btnAvoid">⚠️ Avoid</button>
+    </div>
+  </div>
+
+  <!-- Result Box -->
   <div class="result-box" id="resultBox">
     <div class="result-header">
       <div>🏁 Phantom AI Result 🏁</div>
@@ -166,7 +186,14 @@ let history = JSON.parse(sessionStorage.getItem('history')||'[]');
 const resultList=document.getElementById('resultList');
 const summary=document.getElementById('summary');
 const toast=document.getElementById('toast');
-const copyResult=document.getElementById('copyResult');
+
+const outputBox=document.getElementById('outputBox');
+const signalText=document.getElementById('signalText');
+const signalButtons=document.getElementById('signalButtons');
+const btnProfit=document.getElementById('btnProfit');
+const btnLoss=document.getElementById('btnLoss');
+const btnAvoid=document.getElementById('btnAvoid');
+const copySignal=document.getElementById('copySignal');
 
 function showToast(text="Signal Copied!"){
   toast.textContent=text;
@@ -179,18 +206,24 @@ function renderResults(){
   resultList.textContent=lines||"No signals yet.";
   const total=history.length;
   const wins=history.filter(h=>h.status==='win').length;
-  const losses=total-wins;
-  const accuracy=total?Math.round((wins/total)*100):0;
+  const losses=history.filter(h=>h.status==='loss').length;
+  const avoids=history.filter(h=>h.status==='avoid').length;
+  const accuracy=total?(Math.round((wins/total)*100)) : 0;
   summary.innerHTML=`
     📊 Total Signals: ${total}<br>
     ✅ Win: ${wins}<br>
     ❌ Loss: ${losses}<br>
+    ⚠️ Avoid: ${avoids}<br>
     📈 Accuracy: ${accuracy}%
   `;
 }
 
 function buildSignalText(pair){
-  return `🏁 Phantom AI Result 🏁\n\n${pair} ✅`; // placeholder ✅, user will click profit/loss later
+  const now=new Date();
+  const minutes = now.getMinutes()+Math.floor(Math.random()*3)+2;
+  now.setMinutes(minutes);
+  const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  return `🚀 Phantom AI\n\n💱 Pair: ${pair}\n⏰ Time: ${timeStr}\n\n📈 Strategy: Opposite Trade\n\n⚡ Note: Follow risk \nmanagement & check previous candle.`;
 }
 
 document.getElementById('generateBtn').addEventListener('click',()=>{
@@ -198,16 +231,44 @@ document.getElementById('generateBtn').addEventListener('click',()=>{
   const pair=document.getElementById('marketName').value.trim();
   if(!type){alert("Select market type"); return;}
   if(!pair){alert("Enter pair name"); return;}
-  const status=confirm("Click OK for Profit, Cancel for Loss")?"win":"loss";
-  history.push({pair,status});
-  sessionStorage.setItem('history',JSON.stringify(history));
-  renderResults();
+
+  signalText.textContent="Phantom AI Analysis..."; 
+  signalButtons.style.display="none";
+
+  setTimeout(()=>{
+    const signal=buildSignalText(pair);
+    signalText.textContent=signal;
+    signalButtons.style.display="flex";
+  },3000);
 });
 
-copyResult.addEventListener('click',()=>{
+// Signal Buttons
+function addSignal(status){
+  const pair=document.getElementById('marketName').value.trim();
+  const signal=signalText.textContent;
+  history.push({pair,status,signal});
+  sessionStorage.setItem('history',JSON.stringify(history));
+  renderResults();
+}
+
+btnProfit.addEventListener('click',()=>addSignal('win'));
+btnLoss.addEventListener('click',()=>addSignal('loss'));
+btnAvoid.addEventListener('click',()=>addSignal('avoid'));
+
+// Copy Signal Output
+copySignal.addEventListener('click',()=>{ 
+  copyText(signalText.textContent);
+});
+
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>showToast());
+}
+
+// Copy Result Box
+document.getElementById('copyResult').addEventListener('click',()=>{
   let text=`🏁 Phantom AI Result 🏁\n\n`;
   history.forEach(h=>{
-    text+=`${h.pair} ${h.status==='win'?'✅':'❌'}\n`;
+    text+=`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}\n`;
   });
   navigator.clipboard.writeText(text).then(()=>showToast());
 });
