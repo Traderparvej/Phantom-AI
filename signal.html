@@ -136,13 +136,26 @@ body{
 .toast.show{opacity:1;transform:translateY(0);}
 .signal-buttons{margin-top:12px;display:flex;gap:10px;}
 .loading-text{
+  font-weight:700;
   font-style:italic;
-  opacity:0.7;
-  animation: blink 1.2s infinite;
+  background:linear-gradient(90deg,#00ffc6,#42a5ff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation: blinkDots 1.2s infinite;
 }
-@keyframes blink{
-  0%,50%,100%{opacity:0.7;}
-  25%,75%{opacity:1;}
+.signal-fade{
+  opacity:0;
+  animation: fadeIn 0.8s forwards;
+}
+@keyframes fadeIn{
+  to{opacity:1;}
+}
+@keyframes blinkDots{
+  0%{content:"Phantom AI Analysis .";}
+  25%{content:"Phantom AI Analysis ..";}
+  50%{content:"Phantom AI Analysis ...";}
+  75%{content:"Phantom AI Analysis ..";}
+  100%{content:"Phantom AI Analysis .";}
 }
 </style>
 </head>
@@ -251,6 +264,7 @@ document.getElementById('generateBtn').addEventListener('click',()=>{
   setTimeout(()=>{
     const signal=buildSignalText(pair);
     signalText.textContent=signal;
+    signalText.classList.add('signal-fade');
     signalButtons.style.display="flex";
   },3000);
 });
@@ -269,26 +283,12 @@ btnLoss.addEventListener('click',()=>addSignal('loss'));
 btnAvoid.addEventListener('click',()=>addSignal('avoid'));
 
 copySignal.addEventListener('click',()=>copyText(signalText.textContent));
-
-function copyText(text){
-  navigator.clipboard.writeText(text).then(()=>showToast());
-}
-
 document.getElementById('copyResult').addEventListener('click',()=>{
-  let text=`🏁 Phantom AI Result 🏁\n\n`;
-  history.forEach(h=>{
-    text+=`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}\n`;
-  });
-  const total=history.length;
-  const wins=history.filter(h=>h.status==='win').length;
-  const losses=history.filter(h=>h.status==='loss').length;
-  const avoids=history.filter(h=>h.status==='avoid').length;
-  const accuracy=wins+losses>0?Math.round((wins/(wins+losses))*100):0;
-  text+=`\n📊 Total Signals: ${total}
-✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}
-📈 Accuracy: ${accuracy}%`;
-  copyText(text);
+  let resultText="🏁 Phantom AI Result 🏁\n\n"+resultList.textContent+"\n\n"+summary.textContent;
+  copyText(resultText);
 });
+
+function copyText(text){navigator.clipboard.writeText(text).then(()=>showToast());}
 
 renderResults();
 </script>
