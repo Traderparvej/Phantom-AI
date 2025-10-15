@@ -74,12 +74,13 @@ body{
   50%{transform:scale(1.4); opacity:1;}
   100%{transform:scale(1); opacity:0.7;}
 }
-.device-id{
+.device-info{
   font-size:13px;
   color:var(--muted);
   background:rgba(255,255,255,0.05);
   padding:4px 8px;
   border-radius:6px;
+  text-align:right;
 }
 .label{color:var(--muted);font-size:13px;margin-bottom:8px;display:block;}
 .select-field, .input-field{
@@ -234,7 +235,10 @@ body{
         <div class="slogan">AI Based Market Analysis System</div>
       </div>
     </div>
-    <div class="device-id">Web ID: <span id="deviceId"></span></div>
+    <div class="device-info">
+      Device ID: <span id="deviceId"></span><br>
+      License: <span id="licenseStatus">Inactive</span>
+    </div>
   </div>
 
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
@@ -297,6 +301,7 @@ const btnAvoid=document.getElementById('btnAvoid');
 const copySignal=document.getElementById('copySignal');
 const copyResult=document.getElementById('copyResult');
 const resetBtn=document.getElementById('resetBtn');
+const licenseStatus=document.getElementById('licenseStatus');
 
 // Toast
 function showToast(text="Signal Copied!"){
@@ -314,11 +319,14 @@ verifyBtn.addEventListener('click', ()=>{
     const validKeys = ["PHANTOM-12345","PHANTOM-ABCDE"];
     if(validKeys.includes(key)){
         licenseVerified = true;
+        licenseStatus.textContent="Active";
         showToast("License Verified ✅");
         licenseInput.disabled = true;
         verifyBtn.disabled = true;
         verifyBtn.style.opacity = "0.6";
     } else {
+        licenseVerified = false;
+        licenseStatus.textContent="Inactive";
         showToast("Invalid License ❌");
     }
 });
@@ -343,7 +351,7 @@ trialPopup.addEventListener('click',()=>{
 
 // Device ID
 function generateDeviceId(){
-  return 'xxxx-xxxx-xxxx'.replace(/[x]/g,()=>Math.floor(Math.random()*16).toString(16));
+  return 'Phantom-'+Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0');
 }
 let deviceId = localStorage.getItem('phantomDeviceId');
 if(!deviceId){
