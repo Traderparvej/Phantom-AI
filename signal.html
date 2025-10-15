@@ -151,6 +151,9 @@ const licenseStatus=document.getElementById('licenseStatus');
 const licData=JSON.parse(localStorage.getItem('phantom_active_license')||'null');
 if(licData&&new Date(licData.exp)>=new Date()){licenseVerified=true;licenseStatus.textContent='Active';}
 
+// ===== Signal History =====
+let signalHistory = []; // store all signals
+
 document.getElementById('verifyBtn').onclick=()=>{
   const key=document.getElementById('licenseKey').value.trim();
   const all=loadLicenses();
@@ -170,50 +173,58 @@ document.getElementById('generateBtn').onclick=()=>{
   const market=document.getElementById('marketName').value.trim();
   const type=document.getElementById('marketType').value.trim();
   if(!market||!type)return alert("Enter all fields");
-  if(!licenseVerified&&trial.count>=2)return document.getElementById('trialPopup').style.display='block';
+  if(!licenseVerified && trial.count>=2) return document.getElementById('trialPopup').style.display='block';
   if(!licenseVerified){trial.count++;localStorage.setItem('phantom_trial',JSON.stringify(trial));}
-  
-  const time=new Date();time.setMinutes(time.getMinutes()+2+Math.floor(Math.random()*2));
+
+  const gap=Math.floor(Math.random()*2)+2;
+  const time=new Date(); time.setMinutes(time.getMinutes()+gap);
   const hh=String(time.getHours()).padStart(2,'0');
   const mm=String(time.getMinutes()).padStart(2,'0');
 
-  const signal=`🚀 Phantom AI 🚀
-
-💱 Pair: ${market} ${type}
-⏰ Time: ${hh}:${mm}
-
-📈 Strategy: Opposite Trade
-
-⚡️ Note: Follow risk 
-management & check previous candle.`;
+  const signal=`💱 ${market} ${type}\n⏰ ${hh}:${mm}\n📈 Strategy: Opposite Trade`;
 
   document.getElementById('signalText').textContent=signal;
   document.getElementById('signalButtons').style.display='flex';
 };
 
 // ===== Copy Buttons =====
-document.getElementById('copySignal').onclick=()=>{navigator.clipboard.writeText(document.getElementById('signalText').textContent);showToast("Signal Copied ✅");};
-document.getElementById('copyResult').onclick=()=>{navigator.clipboard.writeText(document.getElementById('resultList').textContent);showToast("Result Copied ✅");};
+function copyText(id){ 
+  const text=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(()=>showToast("Copied ✅"));
+}
+document.getElementById('copySignal').onclick=()=>copyText('signalText');
+document.getElementById('copyResult').onclick=()=>copyText('resultList');
 
 // ===== Profit / Loss / Avoid Buttons =====
-document.getElementById('btnProfit').onclick=()=>{
+function updateResult(result){
   const signal=document.getElementById('signalText').textContent;
+  signalHistory.push({signal,result});
+
   const rl=document.getElementById('resultList');
-  rl.textContent += `${signal}\nResult: ✅ Profit\n\n`;
-};
-document.getElementById('btnLoss').onclick=()=>{
-  const signal=document.getElementById('signalText').textContent;
-  const rl=document.getElementById('resultList');
-  rl.textContent += `${signal}\nResult: ❌ Loss\n\n`;
-};
-document.getElementById('btnAvoid').onclick=()=>{
-  const signal=document.getElementById('signalText').textContent;
-  const rl=document.getElementById('resultList');
-  rl.textContent += `${signal}\nResult: ⚠️ Avoid\n\n`;
-};
+  rl.innerHTML = signalHistory.map(s=>`${s.signal} ${s.result}`).join('\n') + '\n';
+
+  // Summary
+  const total=signalHistory.length;
+  const win=signalHistory.filter(s=>s.result==='✅ Profit').length;
+  const loss=signalHistory.filter(s=>s.result==='❌ Loss').length;
+  const avoid=signalHistory.filter(s=>s.result==='⚠️ Avoid').length;
+  const acc = total>0? Math.round((win/total)*100) : 0;
+
+  document.getElementById('summary').textContent = `📊 Total Signals: ${total}\n✅ Win: ${win} ❌ Loss: ${loss} ⚠️ Avoid: ${avoid}\n📈 Accuracy: ${acc}%`;
+}
+
+document.getElementById('btnProfit').onclick=()=>updateResult('✅ Profit');
+document.getElementById('btnLoss').onclick=()=>updateResult('❌ Loss');
+document.getElementById('btnAvoid').onclick=()=>updateResult('⚠️ Avoid');
 
 // ===== Reset =====
-document.getElementById('resetBtn').onclick=()=>{document.getElementById('resultList').textContent='';document.getElementById('summary').textContent='';document.getElementById('signalText').textContent='Press Generate to create a signal.';trial.count=0;localStorage.setItem('phantom_trial',JSON.stringify(trial));document.getElementById('trialPopup').style.display='none';};
+document.getElementById('resetBtn').onclick=()=>{
+  document.getElementById('resultList').textContent='';
+  document.getElementById('summary').textContent='';
+  document.getElementById('signalText').textContent='Press Generate to create a signal.';
+  signalHistory=[]; trial.count=0; localStorage.setItem('phantom_trial',JSON.stringify(trial));
+  document.getElementById('trialPopup').style.display='none';
+};
 document.getElementById('trialPopup').onclick=()=>{document.getElementById('trialPopup').style.display='none';};
 
 // ===== Admin Panel =====
@@ -224,8 +235,12 @@ adminFooter.onclick=()=>{passwordBackdrop.style.display='flex';passwordBackdrop.
 document.getElementById('closePasswordModal').onclick=()=>{passwordBackdrop.style.display='none';};
 document.getElementById('verifyAdminPasswordBtn').onclick=()=>{
   const p=document.getElementById('adminPasswordInput').value;
-  if(p==='@TraderParvej+'){passwordBackdrop.style.display='none';modalBackdrop.style.display='flex';modalBackdrop.querySelector('.modal').classList.add('show');renderLic();}
-  else alert("Wrong password");
+  if(p==='@TraderParvej+'){
+    passwordBackdrop.style.display='none';
+    modalBackdrop.style.display='flex';
+    modalBackdrop.querySelector('.modal').classList.add('show');
+    renderLic();
+  } else alert("Wrong password");
 };
 document.getElementById('closeModal').onclick=()=>{modalBackdrop.style.display='none';};
 document.getElementById('generateLicenseBtn').onclick=()=>{
@@ -234,11 +249,12 @@ document.getElementById('generateLicenseBtn').onclick=()=>{
   const days=parseInt(document.getElementById('adminValidity').value);
   if(!id||!user||days<=0)return alert("Fill all");
   const key='PH-'+Math.random().toString(36).substring(2,10).toUpperCase();
-  const exp=new Date();exp.setDate(exp.getDate()+days);
-  const all=loadLicenses();all[key]={device:id,user,exp:exp.toISOString().slice(0,10)};saveLicenses(all);renderLic();
+  const exp=new Date(); exp.setDate(exp.getDate()+days);
+  const all=loadLicenses(); all[key]={device:id,user,exp:exp.toISOString().slice(0,10)}; saveLicenses(all); renderLic();
 };
 function renderLic(){
-  const all=loadLicenses();const div=document.getElementById('licensesList');
+  const all=loadLicenses(); 
+  const div=document.getElementById('licensesList');
   div.innerHTML='<b>Saved Licenses:</b><br>'+Object.entries(all).map(([k,v])=>`${k} — ${v.device} — ${v.user} — ${v.exp}`).join('<br>');
 }
 </script>
