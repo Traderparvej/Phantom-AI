@@ -27,10 +27,11 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 .btn-small{padding:8px 10px;font-weight:700;border-radius:8px}
 .btn-danger{background:linear-gradient(90deg,#ff9b9b,#ff6b6b);color:#2b0707}
 .row{display:flex;gap:10px;align-items:center}
-.output-box{margin-top:16px;padding:16px;border-radius:12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.04);min-height:110px;position:relative}
+.output-box{margin-top:16px;padding:16px;border-radius:12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.04);min-height:160px;position:relative}
 .copy-btn{position:absolute;top:12px;right:12px;padding:6px 10px;border-radius:8px;border:none;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;font-weight:700;cursor:pointer}
 .result-box{margin-top:16px;padding:16px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);min-height:160px}
 .small-muted{font-size:13px;color:var(--muted);margin-top:8px}
+.signal-buttons{margin-top:10px;display:flex;gap:8px}
 .toast{position:fixed;right:20px;bottom:20px;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;padding:10px 14px;border-radius:10px;font-weight:800;transform:translateY(8px);opacity:0;transition:all .25s;z-index:2000}
 .toast.show{opacity:1;transform:translateY(0)}
 .trial-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;padding:18px 22px;border-radius:12px;font-weight:800;z-index:2000;display:none;box-shadow:0 10px 30px rgba(0,0,0,.45);cursor:pointer;text-align:center;max-width:320px}
@@ -72,7 +73,12 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 
     <div class="output-box" id="outputBox">
       <button class="copy-btn" id="copySignal">Copy</button>
-      <div id="signalText" style="opacity:.8;white-space:pre-line;">Press Generate to create a signal.</div>
+      <div id="signalText" style="opacity:.9;white-space:pre-line;">Press Generate to create a signal.</div>
+      <div class="signal-buttons" id="signalButtons" style="display:none">
+        <button class="btn btn-small" id="btnProfit">✅ Profit</button>
+        <button class="btn btn-small" id="btnLoss">❌ Loss</button>
+        <button class="btn btn-small" id="btnAvoid">⚠️ Avoid</button>
+      </div>
     </div>
 
     <div class="result-box">
@@ -91,18 +97,33 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
   </div>
 </div>
 
-<div class="trial-popup" id="trialPopup">
-  You can generate only 2 signals per day in Free Trial.<br>
-  Click here to get License Key (@TraderParvej)
+<div class="trial-popup" id="trialPopup">You can generate only 2 signals/day in Free Trial.<br>Click here to get License Key (@TraderParvej)</div>
+
+<div class="modal-backdrop" id="passwordBackdrop">
+  <div class="modal">
+    <button class="close-x" id="closePasswordModal">✕</button>
+    <h2>Enter Admin Password</h2>
+    <input id="adminPasswordInput" type="password" placeholder="Enter password" class="input-field">
+    <div style="text-align:right;margin-top:10px"><button id="verifyAdminPasswordBtn" class="btn btn-small">Verify</button></div>
+  </div>
 </div>
 
-<div class="modal-backdrop" id="passwordBackdrop"><div class="modal"><button class="close-x" id="closePasswordModal">✕</button><h2>Enter Admin Password</h2><input id="adminPasswordInput" type="password" placeholder="Enter password" class="input-field"><div style="text-align:right;margin-top:10px"><button id="verifyAdminPasswordBtn" class="btn btn-small">Verify</button></div></div></div>
-
-<div class="modal-backdrop" id="modalBackdrop"><div class="modal"><button class="close-x" id="closeModal">✕</button><h2>Admin Panel — License Generator</h2><input id="adminDeviceId" class="input-field" placeholder="Device ID"><input id="adminUserName" class="input-field" placeholder="Username"><input id="adminValidity" class="input-field" type="number" value="30"><button id="generateLicenseBtn" class="btn btn-small">Generate License</button><div id="licensesList" style="margin-top:10px;color:#ccc;font-size:14px;"></div></div></div>
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <button class="close-x" id="closeModal">✕</button>
+    <h2>Admin Panel — License Generator</h2>
+    <input id="adminDeviceId" class="input-field" placeholder="Device ID">
+    <input id="adminUserName" class="input-field" placeholder="Username">
+    <input id="adminValidity" class="input-field" type="number" value="30">
+    <button id="generateLicenseBtn" class="btn btn-small">Generate License</button>
+    <div id="licensesList" style="margin-top:10px;color:#ccc;font-size:14px;"></div>
+  </div>
+</div>
 
 <div class="toast" id="toast">Copied</div>
 
 <script>
+// ===== Device ID =====
 function ensureDeviceId(){
   let id = localStorage.getItem('phantomDeviceId');
   if(!id){
@@ -114,11 +135,13 @@ function ensureDeviceId(){
 const deviceId = ensureDeviceId();
 document.getElementById('deviceId').textContent = deviceId;
 
+// ===== License =====
 const LICENSES_KEY='phantom_licenses_v1';
 function loadLicenses(){try{return JSON.parse(localStorage.getItem(LICENSES_KEY)||'{}');}catch{return {};}}
 function saveLicenses(o){localStorage.setItem(LICENSES_KEY,JSON.stringify(o));}
 const toast=document.getElementById('toast');
 function showToast(t){toast.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1600);}
+
 const todayStr=new Date().toISOString().slice(0,10);
 let trial=JSON.parse(localStorage.getItem('phantom_trial')||'{}');
 if(trial.date!==todayStr){trial={date:todayStr,count:0};localStorage.setItem('phantom_trial',JSON.stringify(trial));}
@@ -142,15 +165,18 @@ document.getElementById('verifyBtn').onclick=()=>{
   }else alert("Invalid License");
 };
 
+// ===== Generate Signal =====
 document.getElementById('generateBtn').onclick=()=>{
   const market=document.getElementById('marketName').value.trim();
   const type=document.getElementById('marketType').value.trim();
   if(!market||!type)return alert("Enter all fields");
   if(!licenseVerified&&trial.count>=2)return document.getElementById('trialPopup').style.display='block';
   if(!licenseVerified){trial.count++;localStorage.setItem('phantom_trial',JSON.stringify(trial));}
+  
   const time=new Date();time.setMinutes(time.getMinutes()+2+Math.floor(Math.random()*2));
   const hh=String(time.getHours()).padStart(2,'0');
   const mm=String(time.getMinutes()).padStart(2,'0');
+
   const signal=`🚀 Phantom AI 🚀
 
 💱 Pair: ${market} ${type}
@@ -160,22 +186,47 @@ document.getElementById('generateBtn').onclick=()=>{
 
 ⚡️ Note: Follow risk 
 management & check previous candle.`;
+
   document.getElementById('signalText').textContent=signal;
+  document.getElementById('signalButtons').style.display='flex';
 };
 
+// ===== Copy Buttons =====
 document.getElementById('copySignal').onclick=()=>{navigator.clipboard.writeText(document.getElementById('signalText').textContent);showToast("Signal Copied ✅");};
 document.getElementById('copyResult').onclick=()=>{navigator.clipboard.writeText(document.getElementById('resultList').textContent);showToast("Result Copied ✅");};
 
-document.getElementById('resetBtn').onclick=()=>{document.getElementById('resultList').textContent='';document.getElementById('summary').textContent='';document.getElementById('signalText').textContent='Press Generate to create a signal.';trial.count=0;localStorage.setItem('phantom_trial',JSON.stringify(trial));document.getElementById('trialPopup').style.display='none';};
+// ===== Profit / Loss / Avoid Buttons =====
+document.getElementById('btnProfit').onclick=()=>{
+  const signal=document.getElementById('signalText').textContent;
+  const rl=document.getElementById('resultList');
+  rl.textContent += `${signal}\nResult: ✅ Profit\n\n`;
+};
+document.getElementById('btnLoss').onclick=()=>{
+  const signal=document.getElementById('signalText').textContent;
+  const rl=document.getElementById('resultList');
+  rl.textContent += `${signal}\nResult: ❌ Loss\n\n`;
+};
+document.getElementById('btnAvoid').onclick=()=>{
+  const signal=document.getElementById('signalText').textContent;
+  const rl=document.getElementById('resultList');
+  rl.textContent += `${signal}\nResult: ⚠️ Avoid\n\n`;
+};
 
+// ===== Reset =====
+document.getElementById('resetBtn').onclick=()=>{document.getElementById('resultList').textContent='';document.getElementById('summary').textContent='';document.getElementById('signalText').textContent='Press Generate to create a signal.';trial.count=0;localStorage.setItem('phantom_trial',JSON.stringify(trial));document.getElementById('trialPopup').style.display='none';};
 document.getElementById('trialPopup').onclick=()=>{document.getElementById('trialPopup').style.display='none';};
 
+// ===== Admin Panel =====
 const adminFooter=document.getElementById('adminFooter');
 const passwordBackdrop=document.getElementById('passwordBackdrop');
 const modalBackdrop=document.getElementById('modalBackdrop');
 adminFooter.onclick=()=>{passwordBackdrop.style.display='flex';passwordBackdrop.querySelector('.modal').classList.add('show');};
 document.getElementById('closePasswordModal').onclick=()=>{passwordBackdrop.style.display='none';};
-document.getElementById('verifyAdminPasswordBtn').onclick=()=>{const p=document.getElementById('adminPasswordInput').value;if(p==='@TraderParvej+'){passwordBackdrop.style.display='none';modalBackdrop.style.display='flex';modalBackdrop.querySelector('.modal').classList.add('show');renderLic();}else alert("Wrong password");};
+document.getElementById('verifyAdminPasswordBtn').onclick=()=>{
+  const p=document.getElementById('adminPasswordInput').value;
+  if(p==='@TraderParvej+'){passwordBackdrop.style.display='none';modalBackdrop.style.display='flex';modalBackdrop.querySelector('.modal').classList.add('show');renderLic();}
+  else alert("Wrong password");
+};
 document.getElementById('closeModal').onclick=()=>{modalBackdrop.style.display='none';};
 document.getElementById('generateLicenseBtn').onclick=()=>{
   const id=document.getElementById('adminDeviceId').value.trim();
