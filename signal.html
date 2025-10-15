@@ -37,7 +37,17 @@ body{
   padding:26px;
   backdrop-filter: blur(8px);
 }
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 .brand h1{
   margin:0;
   font-size:22px;
@@ -46,6 +56,25 @@ body{
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
   letter-spacing:0.6px;
+}
+.logo-circle{
+  width:16px;
+  height:16px;
+  background:linear-gradient(90deg,#00ffc6,#42a5ff);
+  border-radius:50%;
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+  0%{transform:scale(1); opacity:0.7;}
+  50%{transform:scale(1.4); opacity:1;}
+  100%{transform:scale(1); opacity:0.7;}
+}
+.device-id{
+  font-size:13px;
+  color:var(--muted);
+  background:rgba(255,255,255,0.05);
+  padding:4px 8px;
+  border-radius:6px;
 }
 .label{color:var(--muted);font-size:13px;margin-bottom:8px;display:block;}
 .select-field, .input-field{
@@ -169,7 +198,6 @@ body{
   color:var(--muted);
   cursor:pointer;
 }
-/* Center trial popup */
 .trial-popup{
   position:fixed;
   top:50%;
@@ -188,18 +216,19 @@ body{
   cursor:pointer;
   max-width:300px;
 }
-.trial-popup:hover{
-  opacity:0.9;
-}
+.trial-popup:hover{opacity:0.9;}
 </style>
 </head>
 <body>
 <div class="card" role="main">
   <div class="header">
-    <div class="brand"><h1>Phantom AI</h1></div>
+    <div class="brand">
+      <span class="logo-circle"></span>
+      <h1>Phantom AI</h1>
+    </div>
+    <div class="device-id">ID: <span id="deviceId"></span></div>
   </div>
 
-  <!-- License Key Input + Verify Button -->
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
     <input id="licenseKey" class="input-field" placeholder="Enter your license key" style="flex:1;">
     <button id="verifyBtn" class="btn" style="flex:0 0 auto;padding:10px 14px;font-size:14px;">Verify</button>
@@ -238,7 +267,6 @@ body{
   </div>
 </div>
 
-<!-- Trial popup -->
 <div class="trial-popup" id="trialPopup">
   You can generate only 2 signals per day in Free Trial.<br>
   Click here to get License Key (@TraderParvej)
@@ -247,11 +275,11 @@ body{
 <div class="toast" id="toast">Signal Copied!</div>
 
 <script>
+// History & DOM
 let history = JSON.parse(sessionStorage.getItem('history')||'[]');
 const resultList=document.getElementById('resultList');
 const summary=document.getElementById('summary');
 const toast=document.getElementById('toast');
-
 const outputBox=document.getElementById('outputBox');
 const signalText=document.getElementById('signalText');
 const signalButtons=document.getElementById('signalButtons');
@@ -262,6 +290,7 @@ const copySignal=document.getElementById('copySignal');
 const copyResult=document.getElementById('copyResult');
 const resetBtn=document.getElementById('resetBtn');
 
+// Toast
 function showToast(text="Signal Copied!"){
   toast.textContent=text;
   toast.classList.add('show');
@@ -272,7 +301,6 @@ function showToast(text="Signal Copied!"){
 let licenseVerified = false;
 const licenseInput = document.getElementById('licenseKey');
 const verifyBtn = document.getElementById('verifyBtn');
-
 verifyBtn.addEventListener('click', ()=>{
     const key = licenseInput.value.trim();
     const validKeys = ["PHANTOM-12345","PHANTOM-ABCDE"];
@@ -287,7 +315,7 @@ verifyBtn.addEventListener('click', ()=>{
     }
 });
 
-// Track Free Trial: 2 signals per day
+// Trial system
 const today = new Date().toISOString().slice(0,10);
 let trialData = JSON.parse(localStorage.getItem('trialData') || '{}');
 if(trialData.date !== today){
@@ -305,7 +333,18 @@ trialPopup.addEventListener('click',()=>{
   window.open("https://t.me/TraderParvej","_blank");
 });
 
-// Render Result Box
+// Device ID
+function generateDeviceId(){
+  return 'xxxx-xxxx-xxxx'.replace(/[x]/g,()=>Math.floor(Math.random()*16).toString(16));
+}
+let deviceId = localStorage.getItem('phantomDeviceId');
+if(!deviceId){
+  deviceId = generateDeviceId();
+  localStorage.setItem('phantomDeviceId', deviceId);
+}
+document.getElementById('deviceId').textContent = deviceId;
+
+// Render Results
 function renderResults(){
   const lines=history.map(h=>`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}`).join("\n");
   resultList.textContent=lines||"No signals yet.";
@@ -320,10 +359,10 @@ function renderResults(){
 📈 Accuracy: ${accuracy}%`;
 }
 
-// Build Signal Text
+// Build Signal
 function buildSignalText(pair){
   const now=new Date();
-  const randomMinutes=Math.floor(Math.random()*2)+2; // 2-3 min
+  const randomMinutes=Math.floor(Math.random()*2)+2;
   now.setMinutes(now.getMinutes()+randomMinutes);
   const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   return `🚀 Phantom AI
@@ -337,14 +376,13 @@ function buildSignalText(pair){
 management & check previous candle.`;
 }
 
-// Generate Signal
+// Generate
 document.getElementById('generateBtn').addEventListener('click',()=>{
   const type=document.getElementById('marketType').value.trim();
   const pair=document.getElementById('marketName').value.trim();
   if(!type){alert("Select market type"); return;}
   if(!pair){alert("Enter pair name"); return;}
 
-  // Trial Limit Check
   if(!licenseVerified){
       if(trialData.count >= 2){
           showTrialPopup();
@@ -366,7 +404,7 @@ document.getElementById('generateBtn').addEventListener('click',()=>{
   },3000);
 });
 
-// Add Signal Result
+// Add signal
 function addSignal(status){
   const pair=document.getElementById('marketName').value.trim();
   history.push({pair,status});
@@ -380,11 +418,11 @@ btnProfit.addEventListener('click',()=>addSignal('win'));
 btnLoss.addEventListener('click',()=>addSignal('loss'));
 btnAvoid.addEventListener('click',()=>addSignal('avoid'));
 
-// Copy Buttons
+// Copy
 copySignal.addEventListener('click',()=>navigator.clipboard.writeText(signalText.textContent).then(()=>showToast()));
 copyResult.addEventListener('click',()=>navigator.clipboard.writeText(`🏁 Phantom AI Result 🏁\n\n${resultList.textContent}\n\n${summary.textContent}`).then(()=>showToast()));
 
-// Reset Button
+// Reset
 resetBtn.addEventListener('click',()=>{
   if(confirm("Clear all recorded signals?")){
     history=[];
