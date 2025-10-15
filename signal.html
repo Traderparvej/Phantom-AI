@@ -33,9 +33,9 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 .row{display:flex;gap:10px;align-items:center}
 
 /* output/result boxes */
-.output-box{margin-top:16px;padding:16px;border-radius:12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.04);min-height:110px;position:relative;white-space:pre-wrap}
+.output-box{margin-top:16px;padding:16px;border-radius:12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.04);min-height:110px;position:relative}
 .copy-btn{position:absolute;top:12px;right:12px;padding:6px 10px;border-radius:8px;border:none;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;font-weight:700;cursor:pointer}
-.result-box{margin-top:16px;padding:16px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);min-height:160px;white-space:pre-wrap}
+.result-box{margin-top:16px;padding:16px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);min-height:160px}
 
 /* small text */
 .small-muted{font-size:13px;color:var(--muted);margin-top:8px}
@@ -70,7 +70,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 </head>
 <body>
 <div class="container">
-  <div class="card" role="main">
+  <div class="card">
     <div class="header">
       <div class="brand">
         <span class="logo-circle"></span>
@@ -86,7 +86,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
     </div>
 
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-      <input id="licenseKey" class="input-field" placeholder="Enter license key (if you have one)" style="flex:1">
+      <input id="licenseKey" class="input-field" placeholder="Enter license key">
       <button id="verifyBtn" class="btn btn-small">Verify</button>
     </div>
 
@@ -98,11 +98,11 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
     </select>
 
     <label class="small-muted">Enter Pair Name</label>
-    <input id="marketName" class="input-field" placeholder="e.g. EUR/JPY or USD/JPY">
+    <input id="marketName" class="input-field" placeholder="e.g. EUR/JPY">
 
     <div style="display:flex;gap:10px;align-items:center">
       <button id="generateBtn" class="btn">Generate</button>
-      <div class="small-note" style="margin-left:8px">Free trial: 2 signals/day (without license)</div>
+      <div class="small-note" style="margin-left:8px">Free trial: 2 signals/day</div>
     </div>
 
     <div class="output-box" id="outputBox">
@@ -120,7 +120,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
         <div>🏁 Phantom AI Result 🏁</div>
         <button class="copy-btn" id="copyResult" style="position:static">Copy</button>
       </div>
-      <div id="resultList" style="margin-top:8px;color:#cfefff;min-height:70px">No signals yet.</div>
+      <div id="resultList" style="white-space:pre-line;margin-top:8px;color:#cfefff;min-height:70px">No signals yet.</div>
       <div id="summary" class="small-muted"></div>
       <div style="display:flex;justify-content:flex-end">
         <button id="resetBtn" class="btn" style="margin-top:10px">Reset</button>
@@ -132,33 +132,33 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 </div>
 
 <div class="trial-popup" id="trialPopup">
-  You can generate only 2 signals per day in Free Trial.<br>
-  Click here to get License Key (<a href="https://t.me/TraderParvej" target="_blank">@TraderParvej</a>)
+  You can generate only 2 signals/day in Free Trial.<br>
+  Get License Key: <a href="https://t.me/TraderParvej" target="_blank">@TraderParvej</a>
 </div>
 
-<div class="modal-backdrop" id="passwordBackdrop" aria-hidden="true">
+<div class="modal-backdrop" id="passwordBackdrop">
   <div class="modal">
     <button class="close-x" id="closePasswordModal">✕</button>
-    <h2 style="margin-bottom:8px">Enter Admin Password</h2>
-    <input id="adminPasswordInput" type="password" placeholder="Enter password" class="input-field">
+    <h2>Enter Admin Password</h2>
+    <input id="adminPasswordInput" type="password" class="input-field" placeholder="Password">
     <div style="text-align:right;margin-top:6px">
       <button id="verifyAdminPasswordBtn" class="btn btn-small">Verify</button>
     </div>
   </div>
 </div>
 
-<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
     <button class="close-x" id="closeModal">✕</button>
-    <h2 id="adminTitle">Admin Panel — License Generator</h2>
-    <div class="grid" style="margin-top:10px">
+    <h2>Admin Panel — License Generator</h2>
+    <div class="grid">
       <div>
         <label class="small-muted">Device ID</label>
-        <input id="adminDeviceId" placeholder="Phantom-XXXX" class="input-field">
+        <input id="adminDeviceId" class="input-field">
       </div>
       <div>
         <label class="small-muted">User Name</label>
-        <input id="adminUserName" placeholder="Member name / username" class="input-field">
+        <input id="adminUserName" class="input-field">
       </div>
       <div>
         <label class="small-muted">Validity (days)</label>
@@ -166,7 +166,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
       </div>
       <div>
         <label class="small-muted">Optional note</label>
-        <input id="adminNote" placeholder="e.g. Premium" class="input-field">
+        <input id="adminNote" class="input-field" placeholder="e.g. Premium">
       </div>
       <div class="full">
         <div style="display:flex;gap:10px;align-items:center;justify-content:space-between">
@@ -177,14 +177,12 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
         </div>
       </div>
       <div class="full" style="margin-top:8px">
-        <div style="margin-top:6px"><strong>Existing Licenses</strong></div>
+        <strong>Existing Licenses</strong>
         <table class="licenses-table" id="licensesTable">
           <thead>
-            <tr><th>License Key</th><th>Device ID</th><th>User</th><th>Expiry</th><th>Status</th><th>Action</th></tr>
+            <tr><th>License Key</th><th>Device</th><th>User</th><th>Expiry</th><th>Status</th><th>Action</th></tr>
           </thead>
-          <tbody id="licensesBody">
-            <!-- filled by JS -->
-          </tbody>
+          <tbody id="licensesBody"></tbody>
         </table>
       </div>
     </div>
@@ -194,132 +192,126 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 <div class="toast" id="toast">Copied</div>
 
 <script>
-const LICENSES_KEY = 'phantom_licenses_v1';
-const ACTIVE_LICENSE_KEY = 'phantom_active_license';
-const TRIAL_KEY = 'phantom_trial';
+const LICENSES_KEY='phantom_licenses_v1';
+const ACTIVE_LICENSE_KEY='phantom_active_license';
+const TRIAL_KEY='phantom_trial';
+let history = JSON.parse(sessionStorage.getItem('phantom_history')||'[]');
+let trialData=JSON.parse(localStorage.getItem(TRIAL_KEY)||'{}');
+const todayStr=new Date().toISOString().slice(0,10);
+if(trialData.date!==todayStr){ trialData={date:todayStr,count:0}; localStorage.setItem(TRIAL_KEY,JSON.stringify(trialData)); }
 
-// device id
-function ensureDeviceId(){
-  let id = localStorage.getItem('phantomDeviceId');
-  if(!id){
-    id = 'Phantom-' + Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0');
-    localStorage.setItem('phantomDeviceId', id);
-  }
-  return id;
-}
-const deviceId = ensureDeviceId();
-document.getElementById('deviceId').textContent = deviceId;
+function ensureDeviceId(){ let id=localStorage.getItem('phantomDeviceId'); if(!id){ id='Phantom-'+Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0'); localStorage.setItem('phantomDeviceId',id);} return id;}
+const deviceId=ensureDeviceId();
+document.getElementById('deviceId').textContent=deviceId;
 
-// toast
-const toastEl = document.getElementById('toast');
-function showToast(msg="Copied"){ toastEl.textContent = msg; toastEl.classList.add('show'); setTimeout(()=> toastEl.classList.remove('show'), 1400); }
+const licenseInput=document.getElementById('licenseKey');
+const verifyBtn=document.getElementById('verifyBtn');
+const licenseStatusEl=document.getElementById('licenseStatus');
+let licenseVerified=false;
+const generateBtn=document.getElementById('generateBtn');
+const marketType=document.getElementById('marketType');
+const marketName=document.getElementById('marketName');
+const signalText=document.getElementById('signalText');
+const signalButtons=document.getElementById('signalButtons');
+const btnProfit=document.getElementById('btnProfit');
+const btnLoss=document.getElementById('btnLoss');
+const btnAvoid=document.getElementById('btnAvoid');
+const copySignal=document.getElementById('copySignal');
+const copyResult=document.getElementById('copyResult');
+const resultList=document.getElementById('resultList');
+const summary=document.getElementById('summary');
+const resetBtn=document.getElementById('resetBtn');
+const trialPopup=document.getElementById('trialPopup');
 
-// trial
-const todayStr = new Date().toISOString().slice(0,10);
-let trialData = JSON.parse(localStorage.getItem(TRIAL_KEY) || '{}');
-if(trialData.date !== todayStr){ trialData = { date: todayStr, count: 0 }; localStorage.setItem(TRIAL_KEY, JSON.stringify(trialData)); }
+const adminFooter=document.getElementById('adminFooter');
+const passwordBackdrop=document.getElementById('passwordBackdrop');
+const closePasswordModal=document.getElementById('closePasswordModal');
+const verifyAdminPasswordBtn=document.getElementById('verifyAdminPasswordBtn');
+const adminPasswordInput=document.getElementById('adminPasswordInput');
+const modalBackdrop=document.getElementById('modalBackdrop');
+const closeModalBtn=document.getElementById('closeModal');
+const adminDeviceIdInput=document.getElementById('adminDeviceId');
+const adminUserNameInput=document.getElementById('adminUserName');
+const adminValidityInput=document.getElementById('adminValidity');
+const adminNoteInput=document.getElementById('adminNote');
+const generateLicenseBtn=document.getElementById('generateLicenseBtn');
+const licensesBody=document.getElementById('licensesBody');
 
-// UI refs
-const licenseInput = document.getElementById('licenseKey');
-const verifyBtn = document.getElementById('verifyBtn');
-const licenseStatusEl = document.getElementById('licenseStatus');
-let licenseVerified = false;
+function showToast(msg="Copied"){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1400); }
+function loadLicenses(){try{return JSON.parse(localStorage.getItem(LICENSES_KEY)||'{}');}catch(e){return {};}}
+function saveLicenses(obj){localStorage.setItem(LICENSES_KEY,JSON.stringify(obj));}
 
-const generateBtn = document.getElementById('generateBtn');
-const marketType = document.getElementById('marketType');
-const marketName = document.getElementById('marketName');
-const signalText = document.getElementById('signalText');
-const signalButtons = document.getElementById('signalButtons');
-const btnProfit = document.getElementById('btnProfit');
-const btnLoss = document.getElementById('btnLoss');
-const btnAvoid = document.getElementById('btnAvoid');
-const copySignal = document.getElementById('copySignal');
-const copyResult = document.getElementById('copyResult');
-const resultList = document.getElementById('resultList');
-const summary = document.getElementById('summary');
-const resetBtn = document.getElementById('resetBtn');
-const trialPopup = document.getElementById('trialPopup');
-
-// history
-let history = JSON.parse(sessionStorage.getItem('phantom_history') || '[]');
-
-// helpers
 function formatSignal(pair){
-  const now = new Date();
-  now.setMinutes(now.getMinutes() + 2 + Math.floor(Math.random()*2));
-  const hh = String(now.getHours()).padStart(2,'0');
-  const mm = String(now.getMinutes()).padStart(2,'0');
-  return `Phantom AI
-
-💱 Pair: ${pair}
-⏰ Time: ${hh}:${mm}
-
-📈 Strategy: Opposite Trade
-
-⚡️ Note: Follow risk management & check previous candle.`;
+  const now=new Date(); now.setMinutes(now.getMinutes()+(2+Math.floor(Math.random()*2)));
+  const hh=String(now.getHours()).padStart(2,'0'); const mm=String(now.getMinutes()).padStart(2,'0');
+  return `Phantom AI\n\n💱 Pair: ${pair}\n⏰ Time: ${hh}:${mm}\n\n📈 Strategy: Opposite Trade\n\n⚡️ Note: Follow risk management & check previous candle.`;
 }
 
 function renderHistory(){
-  if(history.length===0){ resultList.textContent='No signals yet.'; summary.textContent=''; return; }
-  resultList.textContent = history.map(h=> `${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'} (${new Date(h.at).toLocaleString()})`).join('\n');
-  const total = history.length;
-  const wins = history.filter(h=>h.status==='win').length;
-  const losses = history.filter(h=>h.status==='loss').length;
-  const avoids = history.filter(h=>h.status==='avoid').length;
-  const acc = (wins+losses)>0 ? Math.round((wins/(wins+losses))*100) : 0;
-  summary.textContent = `📊 Total Signals: ${total}\n✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}\n📈 Accuracy: ${acc}%`;
+  if(history.length===0){ resultList.textContent='No signals yet.'; summary.textContent=''; return;}
+  resultList.textContent=history.map(h=>`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'} (${new Date(h.at).toLocaleString()})`).join('\n');
+  const total=history.length, wins=history.filter(h=>h.status==='win').length, losses=history.filter(h=>h.status==='loss').length, avoids=history.filter(h=>h.status==='avoid').length;
+  const acc=Math.round(wins/total*100);
+  summary.textContent=`📊 Total Signals: ${total}\n✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}\n📈 Accuracy: ${acc}%`;
+  sessionStorage.setItem('phantom_history',JSON.stringify(history));
 }
+
+verifyBtn.addEventListener('click',()=>{
+  const key=licenseInput.value.trim(); const licenses=loadLicenses();
+  if(licenses[key]&&new Date(licenses[key].expiry)>new Date()){ licenseVerified=true; licenseStatusEl.textContent='Active'; showToast('License verified'); trialPopup.style.display='none'; } 
+  else{ licenseVerified=false; licenseStatusEl.textContent='Inactive'; showToast('Invalid/Expired'); }
+});
+
+generateBtn.addEventListener('click',()=>{
+  if(!licenseVerified){ if(trialData.count>=2){trialPopup.style.display='block'; return;} trialData.count++; localStorage.setItem(TRIAL_KEY,JSON.stringify(trialData)); }
+  const pair=marketName.value.trim(); if(!pair){showToast('Enter pair name');return;}
+  const signal=formatSignal(pair); signalText.textContent=signal; signalButtons.style.display='flex';
+});
+
+btnProfit.addEventListener('click',()=>{history.push({pair:marketName.value.trim(),status:'win',at:new Date()}); renderHistory();});
+btnLoss.addEventListener('click',()=>{history.push({pair:marketName.value.trim(),status:'loss',at:new Date()}); renderHistory();});
+btnAvoid.addEventListener('click',()=>{history.push({pair:marketName.value.trim(),status:'avoid',at:new Date()}); renderHistory();});
+
+copySignal.addEventListener('click',()=>{navigator.clipboard.writeText(signalText.textContent); showToast();});
+copyResult.addEventListener('click',()=>{navigator.clipboard.writeText(resultList.textContent+'\n'+summary.textContent); showToast();});
+resetBtn.addEventListener('click',()=>{history=[]; renderHistory();});
+
 renderHistory();
 
-// license verify
-verifyBtn.addEventListener('click', ()=>{
-  const key = (licenseInput.value||'').trim().toUpperCase();
-  if(!key){ alert('Enter a license key'); return; }
-  const all = JSON.parse(localStorage.getItem(LICENSES_KEY)||'{}');
-  if(!all[key]){ alert('Invalid License'); return; }
-  const L = all[key];
-  const expire = new Date(L.expiry);
-  if(expire<new Date()){ alert('License expired'); return; }
-  licenseVerified = true;
-  localStorage.setItem(ACTIVE_LICENSE_KEY,key);
-  licenseStatusEl.textContent='Active';
-  trialPopup.style.display='none';
-  showToast('License Active');
+// Admin panel
+adminFooter.addEventListener('click',()=>{passwordBackdrop.style.display='flex';});
+closePasswordModal.addEventListener('click',()=>{passwordBackdrop.style.display='none';});
+verifyAdminPasswordBtn.addEventListener('click',()=>{
+  if(adminPasswordInput.value==='Admin@123'){passwordBackdrop.style.display='none'; modalBackdrop.style.display='flex'; renderLicenses();}
+  else{showToast('Wrong password');}
+});
+closeModalBtn.addEventListener('click',()=>{modalBackdrop.style.display='none';});
+
+function generateRandomKey(){ return 'PH-'+Math.random().toString(36).substring(2,10).toUpperCase(); }
+
+generateLicenseBtn.addEventListener('click',()=>{
+  const device=adminDeviceIdInput.value.trim(), user=adminUserNameInput.value.trim(), days=parseInt(adminValidityInput.value), note=adminNoteInput.value.trim();
+  if(!device||!user||!days){showToast('Fill all fields'); return;}
+  const key=generateRandomKey(); const expiry=new Date(); expiry.setDate(expiry.getDate()+days);
+  const licenses=loadLicenses(); licenses[key]={device,user,expiry:expiry.toISOString(),note}; saveLicenses(licenses); showToast('License generated'); renderLicenses();
 });
 
-// generate signal
-generateBtn.addEventListener('click', ()=>{
-  if(!licenseVerified && trialData.count>=2){ trialPopup.style.display='block'; return; }
-  const pair = (marketName.value||'').trim();
-  if(!pair){ alert('Enter pair'); return; }
-  const signal = formatSignal(pair);
-  signalText.textContent = signal;
-  signalButtons.style.display='flex';
-
-  if(!licenseVerified){ trialData.count++; localStorage.setItem(TRIAL_KEY,JSON.stringify(trialData)); }
-
-  // attach status buttons
-  btnProfit.onclick = ()=>{ addToHistory(pair,'win'); };
-  btnLoss.onclick = ()=>{ addToHistory(pair,'loss'); };
-  btnAvoid.onclick = ()=>{ addToHistory(pair,'avoid'); };
-});
-
-// add to history
-function addToHistory(pair,status){
-  history.push({pair,status,at:new Date()});
-  sessionStorage.setItem('phantom_history',JSON.stringify(history));
-  renderHistory();
-  signalButtons.style.display='none';
+function renderLicenses(){
+  const licenses=loadLicenses(); licensesBody.innerHTML='';
+  for(const key in licenses){
+    const l=licenses[key]; const isActive=new Date(l.expiry)>new Date(); 
+    const tr=document.createElement('tr'); tr.innerHTML=`
+      <td>${key}</td>
+      <td>${l.device}</td>
+      <td>${l.user}</td>
+      <td>${new Date(l.expiry).toLocaleDateString()}</td>
+      <td><span class="badge ${isActive?'active':'expired'}">${isActive?'Active':'Expired'}</span></td>
+      <td><button class="btn btn-small btn-danger" onclick="deleteLicense('${key}')">Delete</button></td>
+    `; licensesBody.appendChild(tr);
+  }
 }
 
-// copy buttons
-copySignal.addEventListener('click',()=>{ navigator.clipboard.writeText(signalText.textContent).then(()=>showToast()); });
-copyResult.addEventListener('click',()=>{ navigator.clipboard.writeText(resultList.textContent+'\n'+summary.textContent).then(()=>showToast()); });
-
-// reset
-resetBtn.addEventListener('click',()=>{
-  if(confirm('Reset all signals?')){ history=[]; sessionStorage.removeItem('phantom_history'); renderHistory(); }
-});
+function deleteLicense(key){ const licenses=loadLicenses(); delete licenses[key]; saveLicenses(licenses); renderLicenses(); showToast('Deleted'); }
 </script>
 </body>
 </html>
