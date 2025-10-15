@@ -151,9 +151,6 @@ const licenseStatus=document.getElementById('licenseStatus');
 const licData=JSON.parse(localStorage.getItem('phantom_active_license')||'null');
 if(licData&&new Date(licData.exp)>=new Date()){licenseVerified=true;licenseStatus.textContent='Active';}
 
-// ===== Signal History =====
-let signalHistory = []; // store all signals
-
 document.getElementById('verifyBtn').onclick=()=>{
   const key=document.getElementById('licenseKey').value.trim();
   const all=loadLicenses();
@@ -173,65 +170,50 @@ document.getElementById('generateBtn').onclick=()=>{
   const market=document.getElementById('marketName').value.trim();
   const type=document.getElementById('marketType').value.trim();
   if(!market||!type)return alert("Enter all fields");
-  if(!licenseVerified && trial.count>=2) return document.getElementById('trialPopup').style.display='block';
+  if(!licenseVerified&&trial.count>=2)return document.getElementById('trialPopup').style.display='block';
   if(!licenseVerified){trial.count++;localStorage.setItem('phantom_trial',JSON.stringify(trial));}
-
-  const gap=Math.floor(Math.random()*2)+2;
-  const time=new Date(); time.setMinutes(time.getMinutes()+gap);
+  
+  const time=new Date();time.setMinutes(time.getMinutes()+2+Math.floor(Math.random()*2));
   const hh=String(time.getHours()).padStart(2,'0');
   const mm=String(time.getMinutes()).padStart(2,'0');
 
-  const signal=`🚀 Phantom AI  🚀\n\n💱 Pair: ${market} ${type}\n⏰ Time: ${hh}:${mm}\n\n📈 Strategy: Opposite Trade\n\n⚡️ Note: Follow risk \nmanagement & check previous candle.`;
+  const signal=`🚀 Phantom AI 🚀
+
+💱 Pair: ${market} ${type}
+⏰ Time: ${hh}:${mm}
+
+📈 Strategy: Opposite Trade
+
+⚡️ Note: Follow risk 
+management & check previous candle.`;
 
   document.getElementById('signalText').textContent=signal;
   document.getElementById('signalButtons').style.display='flex';
 };
 
 // ===== Copy Buttons =====
-document.getElementById('copySignal').onclick=()=>{
-  const text=document.getElementById('signalText').textContent;
-  navigator.clipboard.writeText(text).then(()=>showToast("Signal Copied ✅"));
-};
-document.getElementById('copyResult').onclick=()=>{
-  const text=document.getElementById('resultList').textContent;
-  navigator.clipboard.writeText(text).then(()=>showToast("Result Copied ✅"));
-};
+document.getElementById('copySignal').onclick=()=>{navigator.clipboard.writeText(document.getElementById('signalText').textContent);showToast("Signal Copied ✅");};
+document.getElementById('copyResult').onclick=()=>{navigator.clipboard.writeText(document.getElementById('resultList').textContent);showToast("Result Copied ✅");};
 
 // ===== Profit / Loss / Avoid Buttons =====
-function updateSummary(){
-  const summary=document.getElementById('summary');
-  let win=0,loss=0,avoid=0;
-  signalHistory.forEach(s=>{
-    if(s.result==='Profit') win++;
-    else if(s.result==='Loss') loss++;
-    else if(s.result==='Avoid') avoid++;
-  });
-  const total=signalHistory.length;
-  const accuracy=total>0?Math.round((win/total)*100):0;
-  summary.textContent=`📊 Total Signals: ${total}\n✅ Win: ${win} ❌ Loss: ${loss} ⚠️ Avoid: ${avoid}\n📈 Accuracy: ${accuracy}%`;
-}
-
-function addSignalResult(result){
+document.getElementById('btnProfit').onclick=()=>{
   const signal=document.getElementById('signalText').textContent;
-  signalHistory.push({signal,result});
   const rl=document.getElementById('resultList');
-  rl.textContent='🏁 Phantom AI Result 🏁\n\n' + signalHistory.map(s=>`${s.signal}\n${s.result==='Profit'?'✅':s.result==='Loss'?'❌':'⚠️'}`).join('\n') + '\n';
-  updateSummary();
-}
-
-document.getElementById('btnProfit').onclick=()=>addSignalResult('Profit');
-document.getElementById('btnLoss').onclick=()=>addSignalResult('Loss');
-document.getElementById('btnAvoid').onclick=()=>addSignalResult('Avoid');
+  rl.textContent += `${signal}\nResult: ✅ Profit\n\n`;
+};
+document.getElementById('btnLoss').onclick=()=>{
+  const signal=document.getElementById('signalText').textContent;
+  const rl=document.getElementById('resultList');
+  rl.textContent += `${signal}\nResult: ❌ Loss\n\n`;
+};
+document.getElementById('btnAvoid').onclick=()=>{
+  const signal=document.getElementById('signalText').textContent;
+  const rl=document.getElementById('resultList');
+  rl.textContent += `${signal}\nResult: ⚠️ Avoid\n\n`;
+};
 
 // ===== Reset =====
-document.getElementById('resetBtn').onclick=()=>{
-  document.getElementById('resultList').textContent='';
-  document.getElementById('signalText').textContent='Press Generate to create a signal.';
-  trial.count=0; localStorage.setItem('phantom_trial',JSON.stringify(trial));
-  document.getElementById('trialPopup').style.display='none';
-  signalHistory=[];
-  updateSummary();
-};
+document.getElementById('resetBtn').onclick=()=>{document.getElementById('resultList').textContent='';document.getElementById('summary').textContent='';document.getElementById('signalText').textContent='Press Generate to create a signal.';trial.count=0;localStorage.setItem('phantom_trial',JSON.stringify(trial));document.getElementById('trialPopup').style.display='none';};
 document.getElementById('trialPopup').onclick=()=>{document.getElementById('trialPopup').style.display='none';};
 
 // ===== Admin Panel =====
@@ -252,12 +234,11 @@ document.getElementById('generateLicenseBtn').onclick=()=>{
   const days=parseInt(document.getElementById('adminValidity').value);
   if(!id||!user||days<=0)return alert("Fill all");
   const key='PH-'+Math.random().toString(36).substring(2,10).toUpperCase();
-  const exp=new Date(); exp.setDate(exp.getDate()+days);
-  const all=loadLicenses(); all[key]={device:id,user,exp:exp.toISOString().slice(0,10)}; saveLicenses(all); renderLic();
+  const exp=new Date();exp.setDate(exp.getDate()+days);
+  const all=loadLicenses();all[key]={device:id,user,exp:exp.toISOString().slice(0,10)};saveLicenses(all);renderLic();
 };
 function renderLic(){
-  const all=loadLicenses(); 
-  const div=document.getElementById('licensesList');
+  const all=loadLicenses();const div=document.getElementById('licensesList');
   div.innerHTML='<b>Saved Licenses:</b><br>'+Object.entries(all).map(([k,v])=>`${k} — ${v.device} — ${v.user} — ${v.exp}`).join('<br>');
 }
 </script>
