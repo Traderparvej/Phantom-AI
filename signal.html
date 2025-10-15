@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Phantom AI — Signal Dashboard (Final)</title>
+<title>Phantom AI — Signal Dashboard</title>
 <style>
 :root{
   --bg:#070b1a; --text:#e7f1ff; --accent:#00ffc6; --border:#1b2445; --muted:#9fb0d6;
@@ -98,8 +98,10 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
       <option value="OTC Market">OTC Market</option>
     </select>
 
-    <label class="small-muted">Enter Pair Name</label>
-    <input id="marketName" class="input-field" placeholder="e.g. EUR/JPY or USD/JPY">
+    <label class="small-muted">Select Pair</label>
+    <select id="marketName" class="select-field">
+      <option value="">-- Select Pair --</option>
+    </select>
 
     <div style="display:flex;gap:10px;align-items:center">
       <button id="generateBtn" class="btn">Generate</button>
@@ -215,142 +217,25 @@ function ensureDeviceId(){
 const deviceId = ensureDeviceId();
 document.getElementById('deviceId').textContent = deviceId;
 
-// -------------------- util --------------------
-function loadLicenses(){ try { return JSON.parse(localStorage.getItem(LICENSES_KEY)||'{}'); } catch(e){ return {}; } }
-function saveLicenses(obj){ localStorage.setItem(LICENSES_KEY, JSON.stringify(obj)); }
-function showToast(msg="Copied"){ const toastEl=document.getElementById('toast'); toastEl.textContent=msg; toastEl.classList.add('show'); setTimeout(()=> toastEl.classList.remove('show'),1400); }
-const todayStr=new Date().toISOString().slice(0,10); let trialData=JSON.parse(localStorage.getItem(TRIAL_KEY) || '{}'); if(trialData.date!==todayStr){ trialData={date:todayStr,count:0}; localStorage.setItem(TRIAL_KEY,JSON.stringify(trialData)); }
-
-// -------------------- UI refs --------------------
-const licenseInput=document.getElementById('licenseKey');
-const verifyBtn=document.getElementById('verifyBtn');
-const licenseStatusEl=document.getElementById('licenseStatus');
-let licenseVerified=false;
-const generateBtn=document.getElementById('generateBtn');
-const marketType=document.getElementById('marketType');
-const marketName=document.getElementById('marketName');
-const signalText=document.getElementById('signalText');
-const signalButtons=document.getElementById('signalButtons');
-const btnProfit=document.getElementById('btnProfit');
-const btnLoss=document.getElementById('btnLoss');
-const btnAvoid=document.getElementById('btnAvoid');
-const copySignal=document.getElementById('copySignal');
-const copyResult=document.getElementById('copyResult');
-const resultList=document.getElementById('resultList');
-const summary=document.getElementById('summary');
-const resetBtn=document.getElementById('resetBtn');
-const trialPopup=document.getElementById('trialPopup');
-
-// -------------------- admin modal refs --------------------
-const adminFooter=document.getElementById('adminFooter');
-const passwordBackdrop=document.getElementById('passwordBackdrop');
-const closePasswordModal=document.getElementById('closePasswordModal');
-const verifyAdminPasswordBtn=document.getElementById('verifyAdminPasswordBtn');
-const adminPasswordInput=document.getElementById('adminPasswordInput');
-const modalBackdrop=document.getElementById('modalBackdrop');
-const modal=modalBackdrop.querySelector('.modal');
-const closeModalBtn=document.getElementById('closeModal');
-const adminDeviceIdInput=document.getElementById('adminDeviceId');
-const adminUserNameInput=document.getElementById('adminUserName');
-const adminValidityInput=document.getElementById('adminValidity');
-const adminNoteInput=document.getElementById('adminNote');
-const generateLicenseBtn=document.getElementById('generateLicenseBtn');
-const licensesBody=document.getElementById('licensesBody');
-
-// -------------------- history --------------------
-let history=JSON.parse(sessionStorage.getItem('phantom_history') || '[]');
-
-// -------------------- helpers --------------------
-function generateLicenseKey(){ const r=Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0'); const t=Date.now().toString(36).slice(-6); return `PHANTOM-${r}-${t}`.toUpperCase(); }
-function escapeHtml(s=''){ return s.replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-// -------------------- license verify --------------------
-verifyBtn.addEventListener('click',()=>{
-  const key=licenseInput.value.trim().toUpperCase();
-  if(!key){ alert("Enter a license key"); return; }
-  const licenses=loadLicenses();
-  if(licenses[key] && new Date(licenses[key].expiry)>=new Date()){
-    licenseStatusEl.textContent='Active'; licenseVerified=true; showToast('License Active'); 
-  } else { licenseStatusEl.textContent='Invalid / Expired'; licenseVerified=false; alert('License invalid or expired'); }
-});
-
-// -------------------- free trial check --------------------
-function checkTrial(){
-  if(licenseVerified) return true;
-  if(trialData.count>=2){ trialPopup.style.display='block'; return false; }
-  trialData.count++; localStorage.setItem(TRIAL_KEY, JSON.stringify(trialData));
-  return true;
-}
-
-// -------------------- signal generation --------------------
-function generateSignal(){
-  if(!checkTrial()) return;
-  const pair=escapeHtml(marketName.value.trim()||'EUR/JPY');
-  const now=new Date();
-  const hh=String(now.getHours()).padStart(2,'0'), mm=String(now.getMinutes()).padStart(2,'0');
-  const strategy=marketType.value==='OTC Market'?'Opposite Trade':'Running Candle';
-  const note='Follow risk management & check previous candle.';
-  const signal=`Phantom AI\n\n💱 Pair: ${pair}\n⏰ Time: ${hh}:${mm}\n\n📈 Strategy: ${strategy}\n\n⚡️ Note: ${note}`;
-  signalText.textContent=signal; signalButtons.style.display='flex';
-  history.push({signal,pair,strategy,time:`${hh}:${mm}`,status:null});
-  updateResult();
-  sessionStorage.setItem('phantom_history',JSON.stringify(history));
-}
-
-// -------------------- result update --------------------
-function updateResult(){
-  let wins=0,loss=0,avoid=0;
-  const resultLines=history.map((h,i)=>{
-    let statusSymbol=h.status==='Profit'?'✅':h.status==='Loss'?'❌':h.status==='Avoid'?'⚠️':'';
-    if(h.status==='Profit') wins++; else if(h.status==='Loss') loss++; else if(h.status==='Avoid') avoid++;
-    return h.signal.split('\n').map(l=>escapeHtml(l)).join('\n') + (statusSymbol?` ${statusSymbol}`:'');
+// -------------------- pairs --------------------
+const realPairs=[
+  'EUR/JPY','USD/JPY','CAD/JPY','NZD/USD','EUR/USD','GBP/USD',
+  'AUD/JPY','GBP/CAD','USD/CAD','AUD/CAD','AUD/USD','GBP/AUD',
+  'GBP/JPY','USD/CHF','EUR/GBP'
+];
+const otcPairs=[
+  'USD/PKR OTC','EUR/PKR OTC','USD/INR OTC','GBP/PKR OTC','EUR/USD OTC'
+];
+const marketTypeSelect=document.getElementById('marketType');
+const marketNameSelect=document.getElementById('marketName');
+marketTypeSelect.addEventListener('change',()=>{
+  const val=marketTypeSelect.value;
+  marketNameSelect.innerHTML='<option value="">-- Select Pair --</option>';
+  let arr=[];
+  if(val==='Real Market') arr=realPairs;
+  else if(val==='OTC Market') arr=otcPairs;
+  arr.forEach(p=>{
+    const opt=document.createElement('option'); opt.value=p; opt.textContent=p;
+    marketNameSelect.appendChild(opt);
   });
-  resultList.textContent=resultLines.join('\n\n');
-  summary.textContent=`📊 Total Signals: ${history.length} | ✅ Win: ${wins} ❌ Loss: ${loss} ⚠️ Avoid: ${avoid}`;
-}
-
-// -------------------- buttons --------------------
-generateBtn.addEventListener('click',generateSignal);
-btnProfit.addEventListener('click',()=>{ history[history.length-1].status='Profit'; updateResult(); });
-btnLoss.addEventListener('click',()=>{ history[history.length-1].status='Loss'; updateResult(); });
-btnAvoid.addEventListener('click',()=>{ history[history.length-1].status='Avoid'; updateResult(); });
-resetBtn.addEventListener('click',()=>{ history=[]; sessionStorage.setItem('phantom_history','[]'); updateResult(); signalText.textContent='Press Generate to create a signal.'; signalButtons.style.display='none'; });
-
-// -------------------- copy --------------------
-copySignal.addEventListener('click',()=>{ navigator.clipboard.writeText(signalText.textContent); showToast(); });
-copyResult.addEventListener('click',()=>{ navigator.clipboard.writeText(resultList.textContent); showToast('Copied Result'); });
-
-// -------------------- admin modal --------------------
-const ADMIN_PASSWORD = '11115';
-adminFooter.addEventListener('click',()=>{ passwordBackdrop.style.display='flex'; });
-closePasswordModal.addEventListener('click',()=>{ passwordBackdrop.style.display='none'; adminPasswordInput.value=''; });
-verifyAdminPasswordBtn.addEventListener('click',()=>{
-  if(adminPasswordInput.value===ADMIN_PASSWORD){ passwordBackdrop.style.display='none'; adminPasswordInput.value=''; modalBackdrop.style.display='flex'; modal.classList.add('show'); loadLicenseTable(); } else alert('Incorrect password'); 
 });
-closeModalBtn.addEventListener('click',()=>{ modalBackdrop.style.display='none'; modal.classList.remove('show'); });
-
-// -------------------- license admin --------------------
-function loadLicenseTable(){
-  const licenses=loadLicenses(); licensesBody.innerHTML='';
-  for(const k in licenses){
-    const l=licenses[k];
-    const statusClass=new Date(l.expiry)>=new Date()?'active':'expired';
-    licensesBody.innerHTML+=`<tr>
-      <td>${k}</td><td>${l.deviceId}</td><td>${l.user}</td><td>${l.expiry}</td>
-      <td><span class="badge ${statusClass}">${statusClass.toUpperCase()}</span></td>
-      <td><button class="btn btn-small btn-danger" onclick="deleteLicense('${k}')">Delete</button></td>
-    </tr>`;
-  }
-}
-function deleteLicense(k){ const licenses=loadLicenses(); delete licenses[k]; saveLicenses(licenses); loadLicenseTable(); }
-generateLicenseBtn.addEventListener('click',()=>{
-  const dev=adminDeviceIdInput.value.trim(),user=adminUserNameInput.value.trim(),days=parseInt(adminValidityInput.value)||30, note=adminNoteInput.value.trim();
-  if(!dev||!user){ alert('Device & User required'); return; }
-  const key=generateLicenseKey(); const expiry=new Date(); expiry.setDate(expiry.getDate()+days);
-  const licenses=loadLicenses();
-  licenses[key]={deviceId:dev,user:user,expiry:expiry.toISOString().slice(0,10),note:note};
-  saveLicenses(licenses); loadLicenseTable(); showToast('License Generated');
-});
-</script>
-</body>
-</html>
