@@ -157,13 +157,21 @@ body{
   75%{content:"Phantom AI Analysis ..";}
   100%{content:"Phantom AI Analysis .";}
 }
+.reset-btn{
+  margin-top:8px;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.04);
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+}
 </style>
 </head>
 <body>
 <div class="card" role="main">
   <div class="header">
     <div class="brand"><h1>Phantom AI</h1></div>
-    <div class="small-muted">Premium Signal Panel</div>
   </div>
 
   <label>Select Market Type</label>
@@ -178,7 +186,6 @@ body{
 
   <button id="generateBtn" class="btn">Generate</button>
 
-  <!-- Signal Output Box -->
   <div class="output-box" id="outputBox">
     <button class="copy-btn" id="copySignal">Copy</button>
     <div id="signalText" style="opacity:0.6;">Press Generate to create a signal.</div>
@@ -189,7 +196,6 @@ body{
     </div>
   </div>
 
-  <!-- Result Box -->
   <div class="result-box" id="resultBox">
     <div class="result-header">
       <div>🏁 Phantom AI Result 🏁</div>
@@ -197,6 +203,7 @@ body{
     </div>
     <div id="resultList" style="white-space:pre-line;margin-top:8px;color:#cfefff;flex:1;"></div>
     <div id="summary" class="small-muted"></div>
+    <button class="reset-btn" id="resetBtn">Reset</button>
   </div>
 </div>
 
@@ -215,6 +222,8 @@ const btnProfit=document.getElementById('btnProfit');
 const btnLoss=document.getElementById('btnLoss');
 const btnAvoid=document.getElementById('btnAvoid');
 const copySignal=document.getElementById('copySignal');
+const copyResult=document.getElementById('copyResult');
+const resetBtn=document.getElementById('resetBtn');
 
 function showToast(text="Signal Copied!"){
   toast.textContent=text;
@@ -238,7 +247,7 @@ function renderResults(){
 
 function buildSignalText(pair){
   const now=new Date();
-  const randomMinutes=Math.floor(Math.random()*2)+2; // 2-3 min
+  const randomMinutes=Math.floor(Math.random()*2)+2;
   now.setMinutes(now.getMinutes()+randomMinutes);
   const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   return `🚀 Phantom AI
@@ -282,13 +291,16 @@ btnProfit.addEventListener('click',()=>addSignal('win'));
 btnLoss.addEventListener('click',()=>addSignal('loss'));
 btnAvoid.addEventListener('click',()=>addSignal('avoid'));
 
-copySignal.addEventListener('click',()=>copyText(signalText.textContent));
-document.getElementById('copyResult').addEventListener('click',()=>{
-  let resultText="🏁 Phantom AI Result 🏁\n\n"+resultList.textContent+"\n\n"+summary.textContent;
-  copyText(resultText);
-});
+copySignal.addEventListener('click',()=>navigator.clipboard.writeText(signalText.textContent).then(()=>showToast()));
+copyResult.addEventListener('click',()=>navigator.clipboard.writeText(`🏁 Phantom AI Result 🏁\n\n${resultList.textContent}\n\n${summary.textContent}`).then(()=>showToast()));
 
-function copyText(text){navigator.clipboard.writeText(text).then(()=>showToast());}
+resetBtn.addEventListener('click',()=>{
+  if(confirm("Clear all recorded signals?")){
+    history=[];
+    sessionStorage.removeItem('history');
+    renderResults();
+  }
+});
 
 renderResults();
 </script>
