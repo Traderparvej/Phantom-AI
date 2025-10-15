@@ -181,49 +181,56 @@ document.getElementById('generateBtn').onclick=()=>{
   const hh=String(time.getHours()).padStart(2,'0');
   const mm=String(time.getMinutes()).padStart(2,'0');
 
-  const signal=`💱 ${market} ${type}\n⏰ ${hh}:${mm}\n📈 Strategy: Opposite Trade`;
+  const signal=`🚀 Phantom AI  🚀\n\n💱 Pair: ${market} ${type}\n⏰ Time: ${hh}:${mm}\n\n📈 Strategy: Opposite Trade\n\n⚡️ Note: Follow risk \nmanagement & check previous candle.`;
 
   document.getElementById('signalText').textContent=signal;
   document.getElementById('signalButtons').style.display='flex';
 };
 
 // ===== Copy Buttons =====
-function copyText(id){ 
-  const text=document.getElementById(id).textContent;
-  navigator.clipboard.writeText(text).then(()=>showToast("Copied ✅"));
-}
-document.getElementById('copySignal').onclick=()=>copyText('signalText');
-document.getElementById('copyResult').onclick=()=>copyText('resultList');
+document.getElementById('copySignal').onclick=()=>{
+  const text=document.getElementById('signalText').textContent;
+  navigator.clipboard.writeText(text).then(()=>showToast("Signal Copied ✅"));
+};
+document.getElementById('copyResult').onclick=()=>{
+  const text=document.getElementById('resultList').textContent;
+  navigator.clipboard.writeText(text).then(()=>showToast("Result Copied ✅"));
+};
 
 // ===== Profit / Loss / Avoid Buttons =====
-function updateResult(result){
-  const signal=document.getElementById('signalText').textContent;
-  signalHistory.push({signal,result});
-
-  const rl=document.getElementById('resultList');
-  rl.innerHTML = signalHistory.map(s=>`${s.signal} ${s.result}`).join('\n') + '\n';
-
-  // Summary
+function updateSummary(){
+  const summary=document.getElementById('summary');
+  let win=0,loss=0,avoid=0;
+  signalHistory.forEach(s=>{
+    if(s.result==='Profit') win++;
+    else if(s.result==='Loss') loss++;
+    else if(s.result==='Avoid') avoid++;
+  });
   const total=signalHistory.length;
-  const win=signalHistory.filter(s=>s.result==='✅ Profit').length;
-  const loss=signalHistory.filter(s=>s.result==='❌ Loss').length;
-  const avoid=signalHistory.filter(s=>s.result==='⚠️ Avoid').length;
-  const acc = total>0? Math.round((win/total)*100) : 0;
-
-  document.getElementById('summary').textContent = `📊 Total Signals: ${total}\n✅ Win: ${win} ❌ Loss: ${loss} ⚠️ Avoid: ${avoid}\n📈 Accuracy: ${acc}%`;
+  const accuracy=total>0?Math.round((win/total)*100):0;
+  summary.textContent=`📊 Total Signals: ${total}\n✅ Win: ${win} ❌ Loss: ${loss} ⚠️ Avoid: ${avoid}\n📈 Accuracy: ${accuracy}%`;
 }
 
-document.getElementById('btnProfit').onclick=()=>updateResult('✅ Profit');
-document.getElementById('btnLoss').onclick=()=>updateResult('❌ Loss');
-document.getElementById('btnAvoid').onclick=()=>updateResult('⚠️ Avoid');
+function addSignalResult(result){
+  const signal=document.getElementById('signalText').textContent;
+  signalHistory.push({signal,result});
+  const rl=document.getElementById('resultList');
+  rl.textContent=signalHistory.map(s=>`${s.signal}\nResult: ${s.result==='Profit'?'✅':s.result==='Loss'?'❌':'⚠️'}\n`).join('\n');
+  updateSummary();
+}
+
+document.getElementById('btnProfit').onclick=()=>addSignalResult('Profit');
+document.getElementById('btnLoss').onclick=()=>addSignalResult('Loss');
+document.getElementById('btnAvoid').onclick=()=>addSignalResult('Avoid');
 
 // ===== Reset =====
 document.getElementById('resetBtn').onclick=()=>{
   document.getElementById('resultList').textContent='';
-  document.getElementById('summary').textContent='';
   document.getElementById('signalText').textContent='Press Generate to create a signal.';
-  signalHistory=[]; trial.count=0; localStorage.setItem('phantom_trial',JSON.stringify(trial));
+  trial.count=0; localStorage.setItem('phantom_trial',JSON.stringify(trial));
   document.getElementById('trialPopup').style.display='none';
+  signalHistory=[];
+  updateSummary();
 };
 document.getElementById('trialPopup').onclick=()=>{document.getElementById('trialPopup').style.display='none';};
 
@@ -235,12 +242,8 @@ adminFooter.onclick=()=>{passwordBackdrop.style.display='flex';passwordBackdrop.
 document.getElementById('closePasswordModal').onclick=()=>{passwordBackdrop.style.display='none';};
 document.getElementById('verifyAdminPasswordBtn').onclick=()=>{
   const p=document.getElementById('adminPasswordInput').value;
-  if(p==='@TraderParvej+'){
-    passwordBackdrop.style.display='none';
-    modalBackdrop.style.display='flex';
-    modalBackdrop.querySelector('.modal').classList.add('show');
-    renderLic();
-  } else alert("Wrong password");
+  if(p==='@TraderParvej+'){passwordBackdrop.style.display='none';modalBackdrop.style.display='flex';modalBackdrop.querySelector('.modal').classList.add('show');renderLic();}
+  else alert("Wrong password");
 };
 document.getElementById('closeModal').onclick=()=>{modalBackdrop.style.display='none';};
 document.getElementById('generateLicenseBtn').onclick=()=>{
