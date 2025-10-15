@@ -174,6 +174,11 @@ body{
     <div class="brand"><h1>Phantom AI</h1></div>
   </div>
 
+  <!-- License Key Input -->
+  <label>Enter License Key</label>
+  <input id="licenseKey" class="input-field" placeholder="Enter your license key">
+  <button id="verifyBtn" class="btn">Verify License</button>
+
   <label>Select Market Type</label>
   <select id="marketType" class="select-field">
     <option value="">-- Choose Market --</option>
@@ -231,6 +236,34 @@ function showToast(text="Signal Copied!"){
   setTimeout(()=>toast.classList.remove('show'),1500);
 }
 
+// License Verification
+let licenseVerified = false;
+const licenseInput = document.getElementById('licenseKey');
+const verifyBtn = document.getElementById('verifyBtn');
+
+verifyBtn.addEventListener('click', ()=>{
+    const key = licenseInput.value.trim();
+    const validKeys = ["PHANTOM-12345","PHANTOM-ABCDE"];
+    if(validKeys.includes(key)){
+        licenseVerified = true;
+        showToast("License Verified ✅");
+        licenseInput.disabled = true;
+        verifyBtn.disabled = true;
+        verifyBtn.style.opacity = "0.6";
+    } else {
+        showToast("Invalid License ❌");
+    }
+});
+
+// Track Free Trial: 2 signals per day
+const today = new Date().toISOString().slice(0,10);
+let trialData = JSON.parse(localStorage.getItem('trialData') || '{}');
+if(trialData.date !== today){
+    trialData = {date: today, count: 0};
+    localStorage.setItem('trialData', JSON.stringify(trialData));
+}
+
+// Render Result Box
 function renderResults(){
   const lines=history.map(h=>`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}`).join("\n");
   resultList.textContent=lines||"No signals yet.";
@@ -245,9 +278,10 @@ function renderResults(){
 📈 Accuracy: ${accuracy}%`;
 }
 
+// Build Signal Text
 function buildSignalText(pair){
   const now=new Date();
-  const randomMinutes=Math.floor(Math.random()*2)+2;
+  const randomMinutes=Math.floor(Math.random()*2)+2; // 2-3 min
   now.setMinutes(now.getMinutes()+randomMinutes);
   const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   return `🚀 Phantom AI
@@ -261,11 +295,23 @@ function buildSignalText(pair){
 management & check previous candle.`;
 }
 
+// Generate Signal
 document.getElementById('generateBtn').addEventListener('click',()=>{
   const type=document.getElementById('marketType').value.trim();
   const pair=document.getElementById('marketName').value.trim();
   if(!type){alert("Select market type"); return;}
   if(!pair){alert("Enter pair name"); return;}
+
+  // Trial Limit Check
+  if(!licenseVerified){
+      if(trialData.count >= 2){
+          alert("You can generate only 2 signals per day in Free Trial. Contact @TraderParvej for License Key.");
+          return;
+      } else {
+          trialData.count++;
+          localStorage.setItem('trialData', JSON.stringify(trialData));
+      }
+  }
 
   signalText.innerHTML=`<span class="loading-text">Phantom AI Analysis in progress...</span>`;
   signalButtons.style.display="none";
@@ -278,6 +324,7 @@ document.getElementById('generateBtn').addEventListener('click',()=>{
   },3000);
 });
 
+// Add Signal Result
 function addSignal(status){
   const pair=document.getElementById('marketName').value.trim();
   history.push({pair,status});
@@ -291,9 +338,11 @@ btnProfit.addEventListener('click',()=>addSignal('win'));
 btnLoss.addEventListener('click',()=>addSignal('loss'));
 btnAvoid.addEventListener('click',()=>addSignal('avoid'));
 
+// Copy Buttons
 copySignal.addEventListener('click',()=>navigator.clipboard.writeText(signalText.textContent).then(()=>showToast()));
 copyResult.addEventListener('click',()=>navigator.clipboard.writeText(`🏁 Phantom AI Result 🏁\n\n${resultList.textContent}\n\n${summary.textContent}`).then(()=>showToast()));
 
+// Reset Button
 resetBtn.addEventListener('click',()=>{
   if(confirm("Clear all recorded signals?")){
     history=[];
