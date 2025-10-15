@@ -207,12 +207,10 @@ function renderResults(){
   const wins=history.filter(h=>h.status==='win').length;
   const losses=history.filter(h=>h.status==='loss').length;
   const avoids=history.filter(h=>h.status==='avoid').length;
-  const accuracy=total?Math.round((wins/total)*100):0;
+  const accuracy=wins+losses>0?Math.round((wins/(wins+losses))*100):0; // ⚠️ Avoid impact ignored
   summary.innerHTML=`
 📊 Total Signals: ${total}
-✅ Win: ${wins}
-❌ Loss: ${losses}
-⚠️ Avoid: ${avoids}
+✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}
 📈 Accuracy: ${accuracy}%`;
 }
 
@@ -282,11 +280,9 @@ document.getElementById('copyResult').addEventListener('click',()=>{
   const wins=history.filter(h=>h.status==='win').length;
   const losses=history.filter(h=>h.status==='loss').length;
   const avoids=history.filter(h=>h.status==='avoid').length;
-  const accuracy=total?Math.round((wins/total)*100):0;
+  const accuracy=wins+losses>0?Math.round((wins/(wins+losses))*100):0;
   text+=`\n📊 Total Signals: ${total}
-✅ Win: ${wins}
-❌ Loss: ${losses}
-⚠️ Avoid: ${avoids}
+✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}
 📈 Accuracy: ${accuracy}%`;
   copyText(text);
 });
