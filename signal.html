@@ -24,7 +24,7 @@ body{
   min-height:100vh;
   display:flex;
   justify-content:center;
-  align-items:center;
+  align-items:flex-start;
   padding:28px;
 }
 .card{
@@ -75,21 +75,21 @@ body{
   color:var(--muted);
   border:1px solid rgba(255,255,255,0.04);
 }
-.output-panel{margin-top:18px;display:grid;grid-template-columns:1fr 360px;gap:18px;}
 .output-box{
+  margin-top:18px;
   padding:18px;
   border-radius:12px;
   background:rgba(0,0,0,0.35);
   border:1px solid rgba(255,255,255,0.04);
-  min-height:190px;
+  min-height:120px;
   color:#cdefff;
   font-weight:600;
   line-height:1.6;
   white-space:pre-line;
   position:relative;
-  box-shadow: inset 0 0 10px rgba(0,255,204,0.06);
 }
 .result-box{
+  margin-top:18px;
   padding:18px;
   border-radius:12px;
   background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
@@ -100,6 +100,7 @@ body{
   display:flex;
   flex-direction:column;
   gap:10px;
+  position:relative;
 }
 .copy-btn{
   position:absolute;
@@ -154,9 +155,6 @@ body{
   background:linear-gradient(90deg,#ff9b9b,#ff6b6b);
   color:#2b0707;
 }
-.modal .modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.modal .modal-top .title{font-weight:800;color:var(--accent)}
-.modal .modal-top .small{color:var(--muted);font-weight:600;font-size:13px}
 .toast{
   position:fixed;
   right:20px;
@@ -191,27 +189,26 @@ body{
   <input id="marketName" class="input-field" placeholder="e.g. EUR/JPY or USD PKR">
   <button id="generateBtn" class="btn">Generate</button>
 
-  <div class="output-panel">
-    <div class="output-box" id="outputBox">
-      <button class="copy-btn" id="copyMain">Copy</button>
-      <div id="outputPlaceholder" style="opacity:0.6;">Press <strong>Generate</strong> to create a signal. Results appear in right panel.</div>
+  <div class="output-box" id="outputBox">
+    <button class="copy-btn" id="copyMain">Copy</button>
+    <div id="outputPlaceholder" style="opacity:0.6;">Press <strong>Generate</strong> to create a signal.</div>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:800">🏁 Phantom AI Result 🏁</div>
+      <button class="clear-btn" id="clearBtn">Reset</button>
     </div>
-    <div class="result-box" id="resultBox">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-weight:800">🏁 Phantom AI Result 🏁</div>
-        <button class="clear-btn" id="clearBtn">Reset</button>
-      </div>
-      <div id="resultList" style="white-space:pre-line;margin-top:8px;color:#cfefff;flex:1;"></div>
-      <div id="summary" class="small-muted"></div>
-      <button class="btn secondary" id="telegramShare" style="margin-top:8px">Share on Telegram</button>
-    </div>
+    <div id="resultList" style="white-space:pre-line;margin-top:8px;color:#cfefff;flex:1;"></div>
+    <div id="summary" class="small-muted"></div>
+    <button class="btn secondary" id="telegramShare" style="margin-top:8px">Share on Telegram</button>
   </div>
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-top">
-      <div class="title" id="modalTitle">Phantom AI Signal</div>
+      <div class="title" id="modalTitle">Phantom AI Analysis...</div>
       <div class="small" id="modalType">--</div>
     </div>
     <div class="signal" id="modalSignal"></div>
@@ -249,6 +246,7 @@ function showToast(text="Signal Copied!"){
   toast.classList.add('show');
   setTimeout(()=>toast.classList.remove('show'),1500);
 }
+
 function renderResults(){
   const lines=history.map(h=>`${h.pair} ${h.status==='win'?'✅':'❌'}`).join("\n");
   resultList.textContent=lines||"No signals yet.";
@@ -263,15 +261,19 @@ function renderResults(){
     📈 Accuracy: ${accuracy}%
   `;
 }
+
 function buildSignalText(pair,timeStr){
   return `🚀 Phantom AI\n\n💱 Pair: ${pair}\n⏰ Time: ${timeStr}\n\n📈 Strategy: Opposite Trade\n\n⚡ Note: Follow risk \nmanagement & check previous candle.`;
 }
+
 function openModal(pair,type,timeStr){
   modalSignal.textContent=buildSignalText(pair,timeStr);
   modalType.textContent=type||'';
   modalBackdrop.classList.add('show');
 }
+
 function closeModal(){modalBackdrop.classList.remove('show');}
+
 function copyTextToClipboard(text){
   if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(text);
   const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);return Promise.resolve();
@@ -280,9 +282,9 @@ function copyTextToClipboard(text){
 document.getElementById('generateBtn').addEventListener('click',()=>{
   const type=document.getElementById('marketType').value.trim();
   const pair=document.getElementById('marketName').value.trim();
-  if(!type){outputBox.innerHTML="⚠️ Please select a market type.";return;}
-  if(!pair){outputBox.innerHTML="⚠️ Please enter a pair name.";return;}
-  outputBox.innerHTML=`<div class="loading">Analyzing Phantom AI...</div>`;
+  if(!type){outputBox.innerHTML="⚠️ Please select a market type."; return;}
+  if(!pair){outputBox.innerHTML="⚠️ Please enter a pair name."; return;}
+  outputBox.innerHTML=`<div style="opacity:0.6;">Analyzing Phantom AI...</div>`;
   copyMain.style.display='none';
   setTimeout(()=>{
     const now=new Date();
@@ -300,16 +302,12 @@ document.getElementById('generateBtn').addEventListener('click',()=>{
       sessionStorage.setItem('history',JSON.stringify(history));
       renderResults();
       closeModal();
-      const note=document.createElement('div');note.style.marginTop='10px';
-      note.style.fontSize='14px';note.style.color=status==='win'?'var(--success)':'var(--danger)';
-      note.textContent=status==='win'?'✅ Recorded as PROFIT':'❌ Recorded as LOSS';
-      outputBox.appendChild(note);
-      setTimeout(()=>{if(note.parentNode)note.remove();},1600);
     };
     btnProfit.onclick=()=>addResult('win');
     btnLoss.onclick=()=>addResult('loss');
-  },2000);
+  },3000);
 });
+
 modalBackdrop.addEventListener('click',(e)=>{if(e.target===modalBackdrop)closeModal();});
 clearBtn.addEventListener('click',()=>{
   if(!confirm('Clear all recorded signals?'))return;
