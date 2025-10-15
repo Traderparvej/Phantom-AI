@@ -59,6 +59,9 @@ body{
   font-size:15px;
   margin-bottom:12px;
 }
+.select-field option{
+  color:black;
+}
 .btn{
   padding:12px 16px;
   border-radius:10px;
@@ -174,10 +177,11 @@ body{
     <div class="brand"><h1>Phantom AI</h1></div>
   </div>
 
-  <!-- License Key Input -->
-  <label>Enter License Key</label>
-  <input id="licenseKey" class="input-field" placeholder="Enter your license key">
-  <button id="verifyBtn" class="btn">Verify License</button>
+  <!-- License Key Input + Verify Button -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+    <input id="licenseKey" class="input-field" placeholder="Enter your license key" style="flex:1;">
+    <button id="verifyBtn" class="btn" style="flex:0 0 auto;padding:10px 14px;font-size:14px;">Verify</button>
+  </div>
 
   <label>Select Market Type</label>
   <select id="marketType" class="select-field">
