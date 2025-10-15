@@ -1,296 +1,384 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Phantom AI — Signal Generator</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Phantom AI — Signal Dashboard</title>
 <style>
 :root{
-  --bg:#080f24;
-  --panel:#0f1530;
-  --accent:#00bfff;
-  --text:#fff;
-  --muted:#9fb0d6;
-  --green:#00ff99;
-  --red:#ff4d4d;
+  --bg:#070b1a; --text:#e7f1ff; --accent:#00ffc6; --border:#1b2445; --muted:#9fb0d6;
+  --success:#22c55e; --danger:#ff6b6b; --card:#0f1530;
 }
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:'Poppins',sans-serif;
-  margin:0;padding:0;
-  display:flex;flex-direction:column;align-items:center;
-}
-header{
-  text-align:center;
-  margin-top:25px;
-}
-h1{
-  font-size:26px;
-  color:var(--accent);
-}
-.slogan{
-  font-size:13px;
-  color:var(--muted);
-  margin-top:-8px;
-}
-.device-id{
-  margin-top:5px;
-  font-size:14px;
-  color:var(--muted);
-}
-.license-status{
-  font-size:14px;
-  color:var(--green);
-}
-.card{
-  background:var(--panel);
-  padding:20px;
-  border-radius:12px;
-  width:90%;
-  max-width:450px;
-  margin-top:20px;
-  box-shadow:0 0 15px rgba(0,0,0,0.3);
-}
-.input-field,.btn{
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  margin-top:8px;
-  font-size:15px;
-}
-.input-field{background:#121b3d;color:var(--text);}
-.btn{background:var(--accent);color:#fff;cursor:pointer;transition:0.3s;}
-.btn:hover{opacity:0.9;}
-.footer{
-  margin-top:20px;
-  font-size:13px;
-  color:var(--muted);
-  cursor:pointer;
-  text-decoration:underline;
-}
-.modal-backdrop{
-  display:none;
-  position:fixed;
-  top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,0.6);
-  align-items:center;
-  justify-content:center;
-  z-index:999;
-}
-.modal{
-  background:var(--panel);
-  padding:25px;
-  border-radius:12px;
-  width:90%;
-  max-width:400px;
-  text-align:center;
-  transform:scale(0.8);
-  transition:0.3s;
-}
-.modal.show{transform:scale(1);}
-.close-x{
-  position:absolute;
-  top:10px;right:15px;
-  color:#fff;
-  background:none;
-  border:none;
-  font-size:20px;
-  cursor:pointer;
-}
-.trial-popup{
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  background:var(--panel);
-  padding:20px;
-  border-radius:10px;
-  text-align:center;
-  color:var(--text);
-  box-shadow:0 0 10px rgba(0,0,0,0.4);
-  display:none;
-  z-index:2000;
-}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:radial-gradient(circle at top,#020617 0%,#050a20 100%);color:var(--text)}
+.container{min-height:100%;display:flex;align-items:flex-start;justify-content:center;padding:28px;}
+.card{width:100%;max-width:920px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--border);box-shadow:0 12px 40px rgba(2,6,23,0.7);padding:24px;backdrop-filter:blur(8px)}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo-circle{width:18px;height:18px;border-radius:50%;background:linear-gradient(90deg,#00ffc6,#42a5ff);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:.75}50%{transform:scale(1.4);opacity:1}100%{transform:scale(1);opacity:.75}}
+.brand h1{margin:0;font-size:20px;font-weight:800;background:linear-gradient(90deg,#00ffc6,#42a5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.slogan{font-size:12px;color:var(--muted);margin-top:2px}
+.device-info{text-align:right;font-size:13px;color:var(--muted);background:rgba(255,255,255,0.02);padding:6px 10px;border-radius:8px}
+
+/* inputs & selects */
+.input-field, .select-field{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:var(--text);outline:none;margin-bottom:12px;font-size:15px}
+.select-field option{color:#000}
+
+/* buttons */
+.btn{padding:12px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:800;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;transition:opacity .12s,transform .12s}
+.btn:active{transform:translateY(1px)}
+.btn-small{padding:8px 10px;font-weight:700;border-radius:8px}
+.btn-danger{background:linear-gradient(90deg,#ff9b9b,#ff6b6b);color:#2b0707}
+.row{display:flex;gap:10px;align-items:center}
+
+/* output/result boxes */
+.output-box{margin-top:16px;padding:16px;border-radius:12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.04);min-height:110px;position:relative}
+.copy-btn{position:absolute;top:12px;right:12px;padding:6px 10px;border-radius:8px;border:none;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;font-weight:700;cursor:pointer}
+.result-box{margin-top:16px;padding:16px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);min-height:160px}
+
+/* small text */
+.small-muted{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* toast */
+.toast{position:fixed;right:20px;bottom:20px;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;padding:10px 14px;border-radius:10px;font-weight:800;transform:translateY(8px);opacity:0;transition:all .25s;z-index:2000}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* trial popup center */
+.trial-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;padding:18px 22px;border-radius:12px;font-weight:800;z-index:2000;display:none;box-shadow:0 10px 30px rgba(0,0,0,.45);cursor:pointer;text-align:center;max-width:320px}
+
+/* admin footer */
+.admin-footer{text-align:center;color:var(--muted);font-size:13px;margin-top:14px;cursor:pointer}
+
+/* admin modal (professional) */
+.modal-backdrop{position:fixed;inset:0;background:rgba(1,4,12,0.6);display:none;align-items:center;justify-content:center;z-index:3000}
+.modal{width:720px;max-width:92%;background:linear-gradient(180deg, rgba(10,12,22,0.98), rgba(6,8,15,0.98));border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 20px 60px rgba(1,4,12,0.7);transform:translateY(12px);opacity:0;transition:all .18s}
+.modal.show{transform:translateY(0);opacity:1}
+.modal h2{margin:0 0 10px 0;text-align:left}
+.modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.modal .full{grid-column:1/-1}
+.modal .actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px}
+.licenses-table{width:100%;border-collapse:collapse;margin-top:12px;color:#cfefff}
+.licenses-table th, .licenses-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px;text-align:left}
+.badge{display:inline-block;padding:6px 8px;border-radius:8px;font-weight:700}
+.badge.active{background:linear-gradient(90deg,#aef3d6,#22c55e);color:#07321a}
+.badge.expired{background:linear-gradient(90deg,#ffd9d9,#ff6b6b);color:#2b0707}
+.small-note{font-size:12px;color:var(--muted)}
+.close-x{position:absolute;right:14px;top:12px;border:none;background:transparent;color:var(--muted);font-weight:700;cursor:pointer}
+
+/* responsive */
+@media(max-width:720px){ .modal{padding:14px} .modal .grid{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
-<header>
-  <h1>🔥 Phantom AI 🔥</h1>
-  <p class="slogan">AI Based Market Analysis System</p>
-  <p class="device-id" id="deviceId"></p>
-  <p class="license-status">License: <span id="licenseStatus">Inactive</span></p>
-</header>
+<div class="container">
+  <div class="card" role="main">
+    <div class="header">
+      <div class="brand">
+        <span class="logo-circle" aria-hidden="true"></span>
+        <div>
+          <h1>Phantom AI</h1>
+          <div class="slogan">AI Based Market Analysis System</div>
+        </div>
+      </div>
+      <div class="device-info">
+        Device ID: <strong id="deviceId">...</strong><br>
+        License: <strong id="licenseStatus">Inactive</strong>
+      </div>
+    </div>
 
-<div class="card">
-  <input type="text" id="licenseKeyInput" class="input-field" placeholder="Enter License Key">
-  <button id="verifyBtn" class="btn">Verify License</button>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+      <input id="licenseKey" class="input-field" placeholder="Enter license key (if you have one)" style="flex:1">
+      <button id="verifyBtn" class="btn btn-small">Verify</button>
+    </div>
 
-  <hr style="margin:20px 0;border:0;border-top:1px solid #222;">
-  
-  <input type="text" id="marketName" class="input-field" placeholder="Enter Market Name (ex: EUR/USD)">
-  <button id="generateBtn" class="btn">Generate Signal</button>
+    <label class="small-muted">Select Market Type</label>
+    <select id="marketType" class="select-field">
+      <option value="">-- Choose Market --</option>
+      <option value="Real Market">Real Market</option>
+      <option value="OTC Market">OTC Market</option>
+    </select>
 
-  <p id="signalText" style="margin-top:20px;">Press Generate to create a signal.</p>
+    <label class="small-muted">Enter Pair Name</label>
+    <input id="marketName" class="input-field" placeholder="e.g. EUR/JPY or USD/JPY">
+
+    <div style="display:flex;gap:10px;align-items:center">
+      <button id="generateBtn" class="btn">Generate</button>
+      <div class="small-note" style="margin-left:8px">Free trial: 2 signals/day (without license)</div>
+    </div>
+
+    <div class="output-box" id="outputBox">
+      <button class="copy-btn" id="copySignal">Copy</button>
+      <div id="signalText" style="opacity:.7">Press Generate to create a signal.</div>
+      <div class="signal-buttons" id="signalButtons" style="display:none">
+        <button class="btn btn-small btn-profit" id="btnProfit">✅ Profit</button>
+        <button class="btn btn-small btn-loss" id="btnLoss">❌ Loss</button>
+        <button class="btn btn-small btn-avoid" id="btnAvoid">⚠️ Avoid</button>
+      </div>
+    </div>
+
+    <div class="result-box" id="resultBox">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>🏁 Phantom AI Result 🏁</div>
+        <button class="copy-btn" id="copyResult" style="position:static">Copy</button>
+      </div>
+      <div id="resultList" style="white-space:pre-line;margin-top:8px;color:#cfefff;min-height:70px">No signals yet.</div>
+      <div id="summary" class="small-muted"></div>
+      <div style="display:flex;justify-content:flex-end">
+        <button id="resetBtn" class="btn" style="margin-top:10px">Reset</button>
+      </div>
+    </div>
+
+    <div class="admin-footer" id="adminFooter">Admin Panel</div>
+  </div>
 </div>
 
+<!-- trial popup -->
 <div class="trial-popup" id="trialPopup">
   You can generate only 2 signals per day in Free Trial.<br>
-  <a href="https://t.me/TraderParvej" target="_blank" style="color:var(--accent)">Contact @TraderParvej for License Key</a>
+  Click here to get License Key (@TraderParvej)
 </div>
 
-<p class="footer" id="adminFooter">Admin Panel</p>
-
-<!-- Password modal -->
-<div class="modal-backdrop" id="passwordBackdrop">
-  <div class="modal" id="passwordModal">
-    <button class="close-x" id="closePassword">✕</button>
+<!-- admin password popup -->
+<div class="modal-backdrop" id="passwordBackdrop" aria-hidden="true">
+  <div class="modal">
+    <button class="close-x" id="closePasswordModal">✕</button>
     <h2>Enter Admin Password</h2>
-    <input type="password" id="adminPassword" placeholder="Enter Password" class="input-field">
-    <button id="verifyPassword" class="btn">Verify</button>
+    <input id="adminPasswordInput" type="password" placeholder="Enter password" class="input-field">
+    <div style="text-align:right;margin-top:10px">
+      <button id="verifyAdminPasswordBtn" class="btn btn-small">Verify</button>
+    </div>
   </div>
 </div>
 
-<!-- Admin panel -->
-<div class="modal-backdrop" id="adminBackdrop">
-  <div class="modal" id="adminModal">
-    <button class="close-x" id="closeAdmin">✕</button>
-    <h2>Admin Panel</h2>
-    <input type="text" id="adminDevice" class="input-field" placeholder="Device ID">
-    <input type="text" id="adminUser" class="input-field" placeholder="User Name">
-    <input type="number" id="adminDays" class="input-field" placeholder="Validity (days)">
-    <button id="generateLicense" class="btn">Generate License</button>
-    <div id="licenseList" style="margin-top:15px;text-align:left;font-size:13px;"></div>
+<!-- admin modal -->
+<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+    <button class="close-x" id="closeModal">✕</button>
+    <h2 id="adminTitle">Admin Panel — License Generator</h2>
+
+    <div class="grid">
+      <div>
+        <label class="small-muted">Device ID</label>
+        <input id="adminDeviceId" placeholder="Phantom-XXXX" class="input-field">
+      </div>
+      <div>
+        <label class="small-muted">User Name</label>
+        <input id="adminUserName" placeholder="Member name / username" class="input-field">
+      </div>
+
+      <div>
+        <label class="small-muted">Validity (days)</label>
+        <input id="adminValidity" type="number" min="1" value="30" class="input-field">
+      </div>
+
+      <div>
+        <label class="small-muted">Optional note</label>
+        <input id="adminNote" placeholder="e.g. Premium" class="input-field">
+      </div>
+
+      <div class="full">
+        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between">
+          <div class="small-note">After generate, license will be saved and listed below.</div>
+          <div class="actions">
+            <button id="generateLicenseBtn" class="btn btn-small">Generate License</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="full">
+        <div style="margin-top:6px"><strong>Existing Licenses</strong></div>
+        <table class="licenses-table" id="licensesTable">
+          <thead>
+            <tr><th>License Key</th><th>Device ID</th><th>User</th><th>Expiry</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="licensesBody">
+            <!-- filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
+
+<div class="toast" id="toast">Copied</div>
 
 <script>
-const licenseStatus = document.getElementById('licenseStatus');
-const licenseKeyInput = document.getElementById('licenseKeyInput');
+// ===== Device ID persistent =====
+function ensureDeviceId(){
+  let id = localStorage.getItem('phantomDeviceId');
+  if(!id){
+    id = 'Phantom-' + Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0');
+    localStorage.setItem('phantomDeviceId', id);
+  }
+  return id;
+}
+const deviceId = ensureDeviceId();
+document.getElementById('deviceId').textContent = deviceId;
+
+// ===== License Storage =====
+const LICENSES_KEY = 'phantom_licenses_v1';
+function loadLicenses(){ try{ return JSON.parse(localStorage.getItem(LICENSES_KEY)||'{}'); }catch(e){return{};} }
+function saveLicenses(obj){ localStorage.setItem(LICENSES_KEY, JSON.stringify(obj)); }
+
+// ===== Toast =====
+const toastEl = document.getElementById('toast');
+function showToast(msg="Copied"){ toastEl.textContent=msg; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'),1600); }
+
+// ===== Trial Data =====
+const todayStr = new Date().toISOString().slice(0,10);
+let trialData = JSON.parse(localStorage.getItem('phantom_trial')||'{}');
+if(trialData.date!==todayStr){ trialData={date:todayStr,count:0}; localStorage.setItem('phantom_trial',JSON.stringify(trialData)); }
+
+// ===== UI Refs =====
+const licenseKeyInput = document.getElementById('licenseKey');
 const verifyBtn = document.getElementById('verifyBtn');
+const licenseStatusSpan = document.getElementById('licenseStatus');
+let licenseVerified = false;
+
 const generateBtn = document.getElementById('generateBtn');
+const marketType = document.getElementById('marketType');
+const marketName = document.getElementById('marketName');
 const signalText = document.getElementById('signalText');
+const signalButtons = document.getElementById('signalButtons');
+const btnProfit = document.getElementById('btnProfit');
+const btnLoss = document.getElementById('btnLoss');
+const btnAvoid = document.getElementById('btnAvoid');
+const copySignal = document.getElementById('copySignal');
+const copyResult = document.getElementById('copyResult');
+const resultList = document.getElementById('resultList');
+const summary = document.getElementById('summary');
+const resetBtn = document.getElementById('resetBtn');
 const trialPopup = document.getElementById('trialPopup');
 
-// ===== Device ID =====
-function getDeviceId(){
-  if(!localStorage.getItem('phantom_device_id')){
-    const random = Math.random().toString(16).substring(2,6);
-    localStorage.setItem('phantom_device_id','Phantom-'+random);
-  }
-  return localStorage.getItem('phantom_device_id');
+// ===== Admin modal =====
+const adminFooter = document.getElementById('adminFooter');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modal = modalBackdrop.querySelector('.modal');
+const closeModalBtn = document.getElementById('closeModal');
+const adminDeviceIdInput = document.getElementById('adminDeviceId');
+const adminUserNameInput = document.getElementById('adminUserName');
+const adminValidityInput = document.getElementById('adminValidity');
+const adminNoteInput = document.getElementById('adminNote');
+const generateLicenseBtn = document.getElementById('generateLicenseBtn');
+const licensesBody = document.getElementById('licensesBody');
+
+// ===== Admin password popup =====
+const passwordBackdrop = document.getElementById('passwordBackdrop');
+const closePasswordModal = document.getElementById('closePasswordModal');
+const verifyAdminPasswordBtn = document.getElementById('verifyAdminPasswordBtn');
+const adminPasswordInput = document.getElementById('adminPasswordInput');
+
+adminFooter.addEventListener('click', ()=>{
+  passwordBackdrop.style.display='flex';
+  setTimeout(()=> passwordBackdrop.querySelector('.modal').classList.add('show'),10);
+});
+closePasswordModal.addEventListener('click', ()=> {
+  passwordBackdrop.querySelector('.modal').classList.remove('show');
+  setTimeout(()=> passwordBackdrop.style.display='none',180);
+});
+verifyAdminPasswordBtn.addEventListener('click', ()=>{
+  const pwd = adminPasswordInput.value.trim();
+  if(pwd==="@TraderParvej+"){
+    passwordBackdrop.querySelector('.modal').classList.remove('show');
+    setTimeout(()=> passwordBackdrop.style.display='none',180);
+    adminPasswordInput.value='';
+    openAdminModal();
+  }else{ alert("Wrong password!"); }
+});
+
+// ===== Admin modal open/close =====
+function openAdminModal(){
+  modalBackdrop.style.display='flex';
+  setTimeout(()=> modal.classList.add('show'),10);
+  adminDeviceIdInput.value=deviceId;
+  renderLicensesTable();
 }
-const deviceId = getDeviceId();
-document.getElementById('deviceId').textContent = 'Device ID: '+deviceId;
+closeModalBtn.addEventListener('click', ()=>{
+  modal.classList.remove('show');
+  setTimeout(()=> modalBackdrop.style.display='none',180);
+});
 
-// ===== License System =====
-function loadLicenses(){return JSON.parse(localStorage.getItem('phantom_admin_licenses')||'{}');}
-function saveLicenses(obj){localStorage.setItem('phantom_admin_licenses',JSON.stringify(obj));}
-
-function checkStoredLicense(){
-  const stored = JSON.parse(localStorage.getItem('phantom_user_license')||'{}');
-  const today = new Date().toISOString().slice(0,10);
-  if(stored.key && stored.device===deviceId && stored.expiry>=today){
-    licenseStatus.textContent='Active ✅';
-    return true;
-  } else {
-    localStorage.removeItem('phantom_user_license');
-    return false;
+// ===== Generate license =====
+generateLicenseBtn.addEventListener('click', ()=>{
+  const device = adminDeviceIdInput.value.trim();
+  const user = adminUserNameInput.value.trim();
+  const days = parseInt(adminValidityInput.value)||0;
+  const note = adminNoteInput.value.trim();
+  if(!device || !user || days<=0){ alert("Fill all fields correctly"); return; }
+  const key = 'PH-'+Math.random().toString(36).substring(2,10).toUpperCase();
+  const expDate = new Date(); expDate.setDate(expDate.getDate()+days);
+  const licObj = loadLicenses();
+  licObj[key] = {device,user,exp:expDate.toISOString().slice(0,10),note};
+  saveLicenses(licObj);
+  renderLicensesTable();
+});
+function renderLicensesTable(){
+  const licObj = loadLicenses();
+  licensesBody.innerHTML='';
+  const today = todayStr;
+  for(const k in licObj){
+    const l = licObj[k];
+    const status = (l.exp>=today)?'Active':'Expired';
+    licensesBody.innerHTML+=`<tr>
+      <td>${k}</td><td>${l.device}</td><td>${l.user}</td><td>${l.exp}</td>
+      <td><span class="badge ${status.toLowerCase()}">${status}</span></td>
+      <td><button class="btn btn-small btn-danger" onclick="deleteLicense('${k}')">Delete</button></td>
+    </tr>`;
   }
 }
-let licenseVerified = checkStoredLicense();
+function deleteLicense(k){ const obj=loadLicenses(); delete obj[k]; saveLicenses(obj); renderLicensesTable(); }
 
+// ===== License verify =====
 verifyBtn.addEventListener('click',()=>{
   const key = licenseKeyInput.value.trim();
-  const allLicenses = loadLicenses();
-  const today = new Date().toISOString().slice(0,10);
-  if(key in allLicenses){
-    const lic = allLicenses[key];
-    if(lic.device===deviceId && lic.expiry>=today){
-      licenseVerified = true;
-      licenseStatus.textContent='Active ✅';
-      localStorage.setItem('phantom_user_license',JSON.stringify({key,device:deviceId,expiry:lic.expiry}));
-      alert('License Verified Successfully ✅');
-    }else{
-      alert('License expired or invalid device!');
-    }
-  }else{
-    alert('Invalid License Key!');
-  }
+  const licObj = loadLicenses();
+  if(key in licObj){
+    const today = todayStr;
+    if(licObj[key].exp>=today){
+      licenseVerified=true;
+      licenseStatusSpan.textContent='Active';
+      showToast("License Verified ✅");
+    }else{ alert("License Expired"); }
+  }else{ alert("Invalid License"); }
 });
 
-// ===== Signal Generator =====
-let trialData = JSON.parse(localStorage.getItem('phantom_trial')||'{"date":"","count":0}');
-const today = new Date().toISOString().slice(0,10);
-if(trialData.date!==today){trialData={date:today,count:0};localStorage.setItem('phantom_trial',JSON.stringify(trialData));}
-
+// ===== Generate signal =====
 generateBtn.addEventListener('click',()=>{
+  const market = marketName.value.trim();
+  if(!market){ alert("Enter Market Name"); return; }
   if(!licenseVerified && trialData.count>=2){
-    trialPopup.style.display='block';
-    return;
+    trialPopup.style.display='block'; return;
   }
-  if(!licenseVerified){trialData.count++;localStorage.setItem('phantom_trial',JSON.stringify(trialData));}
-  const market=document.getElementById('marketName').value.trim();
-  if(!market){alert('Enter Market Name');return;}
-  const gap=2+Math.floor(Math.random()*2);
-  const time=new Date();time.setMinutes(time.getMinutes()+gap);
-  const t=`${time.getHours().toString().padStart(2,'0')}:${time.getMinutes().toString().padStart(2,'0')}`;
-  signalText.textContent=`${market} — Next signal at ${t}`;
+  if(!licenseVerified){ trialData.count++; localStorage.setItem('phantom_trial',JSON.stringify(trialData)); }
+
+  const time = new Date(); time.setMinutes(time.getMinutes()+2+Math.floor(Math.random()*2));
+  signalText.textContent = `${market} — Signal at ${time.getHours().toString().padStart(2,'0')}:${time.getMinutes().toString().padStart(2,'0')}`;
+  signalButtons.style.display='flex';
 });
 
-// ===== Admin Password Popup =====
-document.getElementById('adminFooter').addEventListener('click',()=>{
-  document.getElementById('passwordBackdrop').style.display='flex';
-  setTimeout(()=>document.getElementById('passwordModal').classList.add('show'),10);
-});
-document.getElementById('closePassword').addEventListener('click',()=>{
-  document.getElementById('passwordModal').classList.remove('show');
-  setTimeout(()=>document.getElementById('passwordBackdrop').style.display='none',180);
-});
-document.getElementById('verifyPassword').addEventListener('click',()=>{
-  const pwd=document.getElementById('adminPassword').value.trim();
-  if(pwd==='@TraderParvej+'){
-    document.getElementById('passwordBackdrop').style.display='none';
-    openAdminPanel();
-  }else alert('Wrong password!');
-});
+// ===== Copy signal/result =====
+copySignal.addEventListener('click',()=>{ navigator.clipboard.writeText(signalText.textContent); showToast(); });
+copyResult.addEventListener('click',()=>{ navigator.clipboard.writeText(resultList.textContent); showToast(); });
 
-// ===== Admin Panel =====
-function openAdminPanel(){
-  document.getElementById('adminBackdrop').style.display='flex';
-  setTimeout(()=>document.getElementById('adminModal').classList.add('show'),10);
-  renderLicenses();
+// ===== Signal buttons =====
+btnProfit.addEventListener('click',()=>addResult('✅ Profit'));
+btnLoss.addEventListener('click',()=>addResult('❌ Loss'));
+btnAvoid.addEventListener('click',()=>addResult('⚠️ Avoid'));
+
+function addResult(txt){
+  resultList.textContent += signalText.textContent + ' — '+txt+'\n';
+  summary.textContent = 'Total: '+resultList.textContent.split('\n').filter(s=>s).length;
+  signalButtons.style.display='none';
+  signalText.textContent = 'Press Generate to create a signal.';
 }
-document.getElementById('closeAdmin').addEventListener('click',()=>{
-  document.getElementById('adminModal').classList.remove('show');
-  setTimeout(()=>document.getElementById('adminBackdrop').style.display='none',180);
-});
 
-document.getElementById('generateLicense').addEventListener('click',()=>{
-  const d=document.getElementById('adminDevice').value.trim();
-  const u=document.getElementById('adminUser').value.trim();
-  const days=parseInt(document.getElementById('adminDays').value)||0;
-  if(!d||!u||days<=0){alert('Fill all fields');return;}
-  const key='PH-'+Math.random().toString(36).substring(2,10).toUpperCase();
-  const exp=new Date();exp.setDate(exp.getDate()+days);
-  const obj=loadLicenses();
-  obj[key]={device:d,user:u,expiry:exp.toISOString().slice(0,10)};
-  saveLicenses(obj);
-  renderLicenses();
-});
+// ===== Reset =====
+resetBtn.addEventListener('click',()=>{ resultList.textContent=''; summary.textContent=''; signalText.textContent='Press Generate to create a signal.'; trialData.count=0; localStorage.setItem('phantom_trial',JSON.stringify(trialData)); trialPopup.style.display='none'; });
 
-function renderLicenses(){
-  const list=document.getElementById('licenseList');
-  const obj=loadLicenses();
-  list.innerHTML='';
-  const today=new Date().toISOString().slice(0,10);
-  for(const k in obj){
-    const l=obj[k];
-    const status=(l.expiry>=today)?'Active ✅':'Expired ❌';
-    list.innerHTML+=`<div><b>${l.user}</b> — ${l.device} — ${l.expiry} — ${status}<br>Key: ${k}</div><hr>`;
-  }
-}
+// ===== Trial popup click =====
+trialPopup.addEventListener('click',()=>{ trialPopup.style.display='none'; licenseKeyInput.focus(); });
+
 </script>
 </body>
 </html>
