@@ -57,6 +57,11 @@ body{
   -webkit-text-fill-color:transparent;
   letter-spacing:0.6px;
 }
+.slogan{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:2px;
+}
 .logo-circle{
   width:16px;
   height:16px;
@@ -224,9 +229,12 @@ body{
   <div class="header">
     <div class="brand">
       <span class="logo-circle"></span>
-      <h1>Phantom AI</h1>
+      <div>
+        <h1>Phantom AI</h1>
+        <div class="slogan">AI Based Market Analysis System</div>
+      </div>
     </div>
-    <div class="device-id">ID: <span id="deviceId"></span></div>
+    <div class="device-id">Web ID: <span id="deviceId"></span></div>
   </div>
 
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
@@ -359,7 +367,7 @@ function renderResults(){
 📈 Accuracy: ${accuracy}%`;
 }
 
-// Build Signal
+// Build signal text
 function buildSignalText(pair){
   const now=new Date();
   const randomMinutes=Math.floor(Math.random()*2)+2;
@@ -372,26 +380,19 @@ function buildSignalText(pair){
 
 📈 Strategy: Opposite Trade
 
-⚡ Note: Follow risk 
-management & check previous candle.`;
+⚡ Note: Follow risk management & check previous candle.`;
 }
 
-// Generate
+// Generate Button
 document.getElementById('generateBtn').addEventListener('click',()=>{
+  if(!licenseVerified && trialData.count >= 2){
+    showTrialPopup();
+    return;
+  }
   const type=document.getElementById('marketType').value.trim();
   const pair=document.getElementById('marketName').value.trim();
   if(!type){alert("Select market type"); return;}
   if(!pair){alert("Enter pair name"); return;}
-
-  if(!licenseVerified){
-      if(trialData.count >= 2){
-          showTrialPopup();
-          return;
-      } else {
-          trialData.count++;
-          localStorage.setItem('trialData', JSON.stringify(trialData));
-      }
-  }
 
   signalText.innerHTML=`<span class="loading-text">Phantom AI Analysis in progress...</span>`;
   signalButtons.style.display="none";
@@ -401,10 +402,15 @@ document.getElementById('generateBtn').addEventListener('click',()=>{
     signalText.textContent=signal;
     signalText.classList.add('signal-fade');
     signalButtons.style.display="flex";
+    if(!licenseVerified){
+      trialData.count++;
+      localStorage.setItem('trialData', JSON.stringify(trialData));
+      if(trialData.count >=2) showTrialPopup();
+    }
   },3000);
 });
 
-// Add signal
+// Add signal to history
 function addSignal(status){
   const pair=document.getElementById('marketName').value.trim();
   history.push({pair,status});
