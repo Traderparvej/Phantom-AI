@@ -1,308 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Phantom AI — Signal Dashboard</title>
 <style>
 :root{
-  --bg:#070b1a; 
-  --text:#e7f1ff; 
-  --accent:#00ffc6;
-  --border:#1b2445;
-  --muted:#9fb0d6;
-  --success:#22c55e;
-  --danger:#ff6b6b;
-  --warn:#facc15;
+  --bg:#070b1a; --text:#e7f1ff; --accent:#00ffc6; --border:#1b2445;
+  --muted:#9fb0d6; --success:#22c55e; --danger:#ff6b6b; --warn:#facc15;
 }
-*{box-sizing:border-box;}
-body{
-  margin:0;
-  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-  background:radial-gradient(circle at top,#020617 0%,#050a20 100%);
-  color:var(--text);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding:28px;
-}
-.card{
-  width:100%;
-  max-width:820px;
-  border-radius:16px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border:1px solid var(--border);
-  box-shadow:0 12px 40px rgba(2,6,23,0.7);
-  padding:26px;
-  backdrop-filter: blur(8px);
-}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.brand h1{
-  margin:0;
-  font-size:22px;
-  font-weight:700;
-  background:linear-gradient(90deg,#00ffc6,#42a5ff);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  letter-spacing:0.6px;
-}
-.label{color:var(--muted);font-size:13px;margin-bottom:8px;display:block;}
-.select-field, .input-field{
-  width:100%;
-  padding:12px 14px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.06);
-  background:rgba(255,255,255,0.02);
-  color:var(--text);
-  outline:none;
-  font-size:15px;
-  margin-bottom:12px;
-}
-.btn{
-  padding:12px 16px;
-  border-radius:10px;
-  border:none;
-  cursor:pointer;
-  font-weight:700;
-  background:linear-gradient(90deg,#00ffc6,#42a5ff);
-  color:#00121a;
-  transition:transform .14s ease,opacity .14s;
-}
-.btn:active{transform:translateY(1px);}
-.btn-profit{background:linear-gradient(90deg,#5eead4,#22c55e); color:#042011;}
-.btn-loss{background:linear-gradient(90deg,#ff9b9b,#ff6b6b); color:#2b0707;}
-.btn-avoid{background:linear-gradient(90deg,#facc15,#fbbf24); color:#00121a;}
-.output-box{
-  margin-top:18px;
-  padding:18px;
-  border-radius:12px;
-  background:rgba(0,0,0,0.35);
-  border:1px solid rgba(255,255,255,0.04);
-  min-height:120px;
-  color:#cdefff;
-  font-weight:600;
-  line-height:1.6;
-  white-space:pre-line;
-  position:relative;
-}
-.copy-btn{
-  position:absolute;
-  top:12px;
-  right:12px;
-  padding:6px 10px;
-  border-radius:8px;
-  border:none;
-  background:linear-gradient(90deg,#00ffc6,#42a5ff);
-  color:#00121a;
-  font-weight:700;
-  font-size:13px;
-  cursor:pointer;
-}
-.result-box{
-  margin-top:18px;
-  padding:18px;
-  border-radius:12px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-  border:1px solid rgba(255,255,255,0.03);
-  min-height:190px;
-  color:var(--text);
-  font-weight:600;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  position:relative;
-}
-.result-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-weight:800;
-}
-.toast{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  background:linear-gradient(90deg,#00ffc6,#42a5ff);
-  color:#00121a;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:700;
-  transform:translateY(14px);
-  opacity:0;
-  transition:all .25s ease;
-  z-index:1200;
-}
-.toast.show{opacity:1;transform:translateY(0);}
-.signal-buttons{margin-top:12px;display:flex;gap:10px;}
-.loading-text{
-  font-weight:700;
-  font-style:italic;
-  background:linear-gradient(90deg,#00ffc6,#42a5ff);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation: blinkDots 1.2s infinite;
-}
-.signal-fade{
-  opacity:0;
-  animation: fadeIn 0.8s forwards;
-}
-@keyframes fadeIn{
-  to{opacity:1;}
-}
-@keyframes blinkDots{
-  0%{content:"Phantom AI Analysis .";}
-  25%{content:"Phantom AI Analysis ..";}
-  50%{content:"Phantom AI Analysis ...";}
-  75%{content:"Phantom AI Analysis ..";}
-  100%{content:"Phantom AI Analysis .";}
-}
-.reset-btn{
-  margin-top:8px;
-  padding:8px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,0.04);
-  background:transparent;
-  color:var(--muted);
-  cursor:pointer;
-}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:radial-gradient(circle at top,#020617 0%,#050a20 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+.container{min-height:100%;display:flex;align-items:flex-start;justify-content:center;padding:28px}
+.card{width:100%;max-width:920px;border-radius:16px;padding:22px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--border);box-shadow:0 12px 40px rgba(2,6,23,0.7);backdrop-filter:blur(8px)}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.brand h1{margin:0;font-size:22px;font-weight:700;background:linear-gradient(90deg,#00ffc6,#42a5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.top-info{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--muted)}
+.device-id{background:rgba(255,255,255,0.02);padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+.license-status{background:rgba(0,0,0,0.25);padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+.form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.col{flex:1;min-width:180px}
+.label{color:var(--muted);font-size:13px;margin-bottom:8px;display:block}
+.input, select{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:var(--text);outline:none}
+.btn{padding:12px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;transition:transform .14s,opacity .14s}
+.btn:active{transform:translateY(1px)}
+.output-box{margin-top:12px;padding:16px;border-radius:12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.04);min-height:120px;color:#cdefff;font-weight:600;line-height:1.6;white-space:pre-line;position:relative}
+.copy-btn{position:absolute;top:12px;right:12px;padding:6px 10px;border-radius:8px;border:none;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;font-weight:700;font-size:13px;cursor:pointer}
+.signal-buttons{margin-top:12px;display:flex;gap:10px}
+.btn-profit{background:linear-gradient(90deg,#5eead4,#22c55e);color:#042011}
+.btn-loss{background:linear-gradient(90deg,#ff9b9b,#ff6b6b);color:#2b0707}
+.btn-avoid{background:linear-gradient(90deg,#facc15,#fbbf24);color:#00121a}
+.result-box{margin-top:18px;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);min-height:190px;color:var(--text);font-weight:600;display:flex;flex-direction:column;gap:10px;position:relative}
+.result-header{display:flex;justify-content:space-between;align-items:center;font-weight:800}
+.reset-btn{margin-top:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer}
+.toast{position:fixed;right:20px;bottom:20px;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;padding:10px 14px;border-radius:10px;font-weight:700;transform:translateY(14px);opacity:0;transition:all .25s ease;z-index:1200}
+.toast.show{opacity:1;transform:translateY(0)}
+.loading-text{font-weight:700;font-style:italic;background:linear-gradient(90deg,#00ffc6,#42a5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:blinkDots 1.2s infinite}
+.signal-fade{opacity:0;animation:fadeIn .8s forwards}
+@keyframes fadeIn{to{opacity:1}}
+@keyframes blinkDots{0%{content:"."}25%{content:".."}50%{content:"..."}75%{content:".."}100%{content:"."}}
+.admin-toggle{margin-left:8px;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline}
+.admin-panel{margin-top:12px;padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
+.small{font-size:13px;color:var(--muted)}
+.flex-row{display:flex;gap:8px;align-items:center}
+kbd{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.02);font-weight:700}
+.lic-active{color:var(--success);font-weight:700}
+.lic-inactive{color:var(--muted);font-weight:700}
+.table{width:100%;border-collapse:collapse;margin-top:10px}
+.table td,.table th{padding:8px;border-bottom:1px dashed rgba(255,255,255,0.04);font-size:13px}
+.small-input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text)}
 </style>
 </head>
 <body>
-<div class="card" role="main">
-  <div class="header">
-    <div class="brand"><h1>Phantom AI</h1></div>
-  </div>
-
-  <label>Select Market Type</label>
-  <select id="marketType" class="select-field">
-    <option value="">-- Choose Market --</option>
-    <option value="Real Market">Real Market</option>
-    <option value="OTC Market">OTC Market</option>
-  </select>
-
-  <label>Enter Pair Name</label>
-  <input id="marketName" class="input-field" placeholder="e.g. EUR/JPY or USD PKR">
-
-  <button id="generateBtn" class="btn">Generate</button>
-
-  <div class="output-box" id="outputBox">
-    <button class="copy-btn" id="copySignal">Copy</button>
-    <div id="signalText" style="opacity:0.6;">Press Generate to create a signal.</div>
-    <div class="signal-buttons" id="signalButtons" style="display:none;">
-      <button class="btn btn-profit" id="btnProfit">✅ Profit</button>
-      <button class="btn btn-loss" id="btnLoss">❌ Loss</button>
-      <button class="btn btn-avoid" id="btnAvoid">⚠️ Avoid</button>
+<div class="container">
+  <div class="card" role="main">
+    <div class="header">
+      <div class="brand"><h1>Phantom AI</h1></div>
+      <div class="top-info">
+        <div class="device-id">Device ID: <span id="deviceId"></span></div>
+        <div class="license-status" id="licenseStatus">License: <span id="licText" class="lic-inactive">Not active</span></div>
+        <div class="flex-row">
+          <span class="small">Activate License:</span>
+          <input id="activateKey" class="small-input" placeholder="Paste license key" />
+          <button id="activateBtn" class="btn">Activate</button>
+        </div>
+        <div class="admin-toggle" id="showAdmin">Admin Panel</div>
+      </div>
     </div>
-  </div>
 
-  <div class="result-box" id="resultBox">
-    <div class="result-header">
-      <div>🏁 Phantom AI Result 🏁</div>
-      <button class="copy-btn" id="copyResult">Copy</button>
+    <!-- main form -->
+    <div class="form-row">
+      <div class="col">
+        <label class="label">Select Market Type</label>
+        <select id="marketType" class="input">
+          <option value="">-- Choose Market --</option>
+          <option value="Real Market">Real Market</option>
+          <option value="OTC Market">OTC Market</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="label">Enter Pair Name</label>
+        <input id="marketName" class="input" placeholder="e.g. EUR/JPY or USD PKR" />
+      </div>
+      <div style="align-self:end">
+        <button id="generateBtn" class="btn">Generate</button>
+      </div>
     </div>
-    <div id="resultList" style="white-space:pre-line;margin-top:8px;color:#cfefff;flex:1;"></div>
-    <div id="summary" class="small-muted"></div>
-    <button class="reset-btn" id="resetBtn">Reset</button>
+
+    <!-- Signal Output Box -->
+    <div class="output-box" id="outputBox">
+      <button class="copy-btn" id="copySignal">Copy</button>
+      <div id="signalText" style="opacity:0.6">Press Generate to create a signal.</div>
+      <div class="signal-buttons" id="signalButtons" style="display:none">
+        <button class="btn btn-profit" id="btnProfit">✅ Profit</button>
+        <button class="btn btn-loss" id="btnLoss">❌ Loss</button>
+        <button class="btn btn-avoid" id="btnAvoid">⚠️ Avoid</button>
+      </div>
+    </div>
+
+    <!-- Result Box -->
+    <div class="result-box" id="resultBox">
+      <div class="result-header">
+        <div>🏁 Phantom AI Result 🏁</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="copy-btn" id="copyResult">Copy</button>
+        </div>
+      </div>
+
+      <div id="resultList" style="white-space:pre-line;margin-top:8px;color:#cfefff;flex:1">No signals yet.</div>
+      <div id="summary" class="small"></div>
+      <button class="reset-btn" id="resetBtn">Reset</button>
+    </div>
+
+    <!-- Admin Panel (hidden by default) -->
+    <div id="adminPanel" class="admin-panel" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Admin Panel</strong> <span class="small"> (password required)</span></div>
+        <div class="small">Password: <kbd>@TraderParvej@</kbd></div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <input id="adminPass" class="small-input" placeholder="Enter admin password" />
+        <button id="adminLogin" class="btn">Login</button>
+        <button id="adminLogout" class="btn secondary" style="display:none">Logout</button>
+      </div>
+
+      <div id="adminInner" style="display:none;margin-top:12px">
+        <div class="small">Generate license for a device (give this key to the member)</div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <input id="genDeviceId" class="small-input" placeholder="Device ID (paste from member)" />
+          <input id="genDays" class="small-input" type="number" placeholder="Valid days (e.g. 30)" />
+          <input id="genExtra" class="small-input" type="number" placeholder="Extra signals/day (0 for none)" />
+          <label style="display:flex;align-items:center;gap:6px"><input id="genUnlimited" type="checkbox" /> Unlimited</label>
+          <button id="generateLicense" class="btn">Generate License Key</button>
+        </div>
+
+        <div id="issuedListWrap" style="margin-top:12px">
+          <div class="small">Issued Licenses</div>
+          <table class="table" id="issuedTable"><thead><tr><th>Key</th><th>Device</th><th>Expiry</th><th>Extra/day</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<div class="toast" id="toast">Signal Copied!</div>
+<div class="toast" id="toast">Copied</div>
 
 <script>
-let history = JSON.parse(sessionStorage.getItem('history')||'[]');
-const resultList=document.getElementById('resultList');
-const summary=document.getElementById('summary');
-const toast=document.getElementById('toast');
+/*
+  Storage & keys used:
+  - deviceId stored in localStorage 'phantom_deviceId'
+  - issuedLicenses stored in localStorage 'phantom_issuedLicenses' (mapping key -> {deviceId,expiresISO,extraPerDay,unlimited})
+  - activated license stored in localStorage per device: 'phantom_license_<deviceId>' = {key,expiresISO,extraPerDay,unlimited}
+  - history stored earlier under 'history' (array)
+  - usage per day for free/license stored under 'usage_<deviceId>' = {date:'YYYY-MM-DD',count: n}
+*/
 
-const outputBox=document.getElementById('outputBox');
-const signalText=document.getElementById('signalText');
-const signalButtons=document.getElementById('signalButtons');
-const btnProfit=document.getElementById('btnProfit');
-const btnLoss=document.getElementById('btnLoss');
-const btnAvoid=document.getElementById('btnAvoid');
-const copySignal=document.getElementById('copySignal');
-const copyResult=document.getElementById('copyResult');
-const resetBtn=document.getElementById('resetBtn');
+const FREE_PER_DAY = 2; // per day free signals
 
-function showToast(text="Signal Copied!"){
-  toast.textContent=text;
+// Utilities
+function uuidv4(){ // simple uuid
+  return 'xxxx-4xxx-yxxx-xxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16);});
+}
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0'); }
+function addDaysISO(days){ const d=new Date(); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+function formatISO(dateISO){ return dateISO; }
+
+// storage helpers
+function getLS(key,def){ try{const v=localStorage.getItem(key); return v?JSON.parse(v):def;}catch(e){return def;} }
+function setLS(key,val){ localStorage.setItem(key,JSON.stringify(val)); }
+
+// Device ID
+let deviceId = localStorage.getItem('phantom_deviceId');
+if(!deviceId){ deviceId = uuidv4(); localStorage.setItem('phantom_deviceId', deviceId); }
+document.getElementById('deviceId').textContent = deviceId;
+
+// license helpers
+function getIssuedLicenses(){ return getLS('phantom_issuedLicenses',{}); }
+function saveIssuedLicenses(obj){ setLS('phantom_issuedLicenses', obj); }
+function getActivatedForDevice(id){ return getLS('phantom_license_'+id, null); }
+function setActivatedForDevice(id, lic){ setLS('phantom_license_'+id, lic); }
+function revokeActivatedForDevice(id){ localStorage.removeItem('phantom_license_'+id); }
+
+// history & usage
+let history = getLS('history', []);
+function saveHistory(){ setLS('history', history); }
+function getUsage(){ return getLS('usage_'+deviceId, {date: todayStr(), count:0}); }
+function saveUsage(u){ setLS('usage_'+deviceId, u); }
+
+// UI refs
+const licText = document.getElementById('licText');
+const licenseStatusWrap = document.getElementById('licenseStatus');
+const activateKey = document.getElementById('activateKey');
+const activateBtn = document.getElementById('activateBtn');
+const generateBtn = document.getElementById('generateBtn');
+const marketTypeEl = document.getElementById('marketType');
+const marketNameEl = document.getElementById('marketName');
+const signalText = document.getElementById('signalText');
+const signalButtons = document.getElementById('signalButtons');
+const btnProfit = document.getElementById('btnProfit');
+const btnLoss = document.getElementById('btnLoss');
+const btnAvoid = document.getElementById('btnAvoid');
+const copySignalBtn = document.getElementById('copySignal');
+const copyResultBtn = document.getElementById('copyResult');
+const resultList = document.getElementById('resultList');
+const summary = document.getElementById('summary');
+const resetBtn = document.getElementById('resetBtn');
+const toast = document.getElementById('toast');
+
+// admin ui
+const showAdmin = document.getElementById('showAdmin');
+const adminPanel = document.getElementById('adminPanel');
+const adminPass = document.getElementById('adminPass');
+const adminLogin = document.getElementById('adminLogin');
+const adminLogout = document.getElementById('adminLogout');
+const adminInner = document.getElementById('adminInner');
+const genDeviceId = document.getElementById('genDeviceId');
+const genDays = document.getElementById('genDays');
+const genExtra = document.getElementById('genExtra');
+const genUnlimited = document.getElementById('genUnlimited');
+const generateLicense = document.getElementById('generateLicense');
+const issuedTableBody = document.querySelector('#issuedTable tbody');
+
+let adminLogged = false;
+
+// initial render
+renderLicenseStatus();
+renderResults();
+renderIssuedTable();
+
+// toast
+function showToast(text='Done'){
+  toast.textContent = text;
   toast.classList.add('show');
-  setTimeout(()=>toast.classList.remove('show'),1500);
+  setTimeout(()=> toast.classList.remove('show'),1400);
 }
 
-function renderResults(){
-  const lines=history.map(h=>`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}`).join("\n");
-  resultList.textContent=lines||"No signals yet.";
-  const total=history.length;
-  const wins=history.filter(h=>h.status==='win').length;
-  const losses=history.filter(h=>h.status==='loss').length;
-  const avoids=history.filter(h=>h.status==='avoid').length;
-  const accuracy=wins+losses>0?Math.round((wins/(wins+losses))*100):0;
-  summary.innerHTML=`
-📊 Total Signals: ${total}
-✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}
-📈 Accuracy: ${accuracy}%`;
+// license display
+function renderLicenseStatus(){
+  const act = getActivatedForDevice(deviceId);
+  if(act && act.expiresISO){
+    const nowISO = new Date().toISOString().slice(0,10);
+    if(nowISO <= act.expiresISO){
+      licText.textContent = `Active — expires ${act.expiresISO}` + (act.unlimited ? ' (Unlimited)' : ` (+${act.extraPerDay||0}/day)`);
+      licText.className='lic-active';
+      return;
+    } else {
+      // expired — remove activation
+      revokeActivatedForDevice(deviceId);
+    }
+  }
+  licText.textContent = 'Not active';
+  licText.className='lic-inactive';
 }
 
-function buildSignalText(pair){
-  const now=new Date();
-  const randomMinutes=Math.floor(Math.random()*2)+2;
-  now.setMinutes(now.getMinutes()+randomMinutes);
-  const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  return `🚀 Phantom AI
+// generate signal logic with daily count check
+generateBtn.addEventListener('click',()=>{
+  const type = marketTypeEl.value.trim();
+  const pair = marketNameEl.value.trim();
+  if(!type){ alert('Select market type'); return; }
+  if(!pair){ alert('Enter pair name'); return; }
 
-💱 Pair: ${pair}
-⏰ Time: ${timeStr}
+  // check usage limit
+  const usage = getUsage();
+  const today = todayStr();
+  if(usage.date !== today){ usage.date = today; usage.count = 0; }
+  // compute allowed per day
+  const act = getActivatedForDevice(deviceId);
+  let allowedExtra = 0;
+  let unlimited = false;
+  if(act){
+    // if activated and not expired
+    const nowISO = new Date().toISOString().slice(0,10);
+    if(nowISO <= act.expiresISO){
+      unlimited = !!act.unlimited;
+      allowedExtra = act.extraPerDay || 0;
+    } else {
+      // expired - clear
+      revokeActivatedForDevice(deviceId);
+      renderLicenseStatus();
+    }
+  }
+  const allowed = unlimited ? 999999 : (FREE_PER_DAY + (allowedExtra||0));
 
-📈 Strategy: Opposite Trade
+  if(usage.count >= allowed){
+    alert(`Daily limit reached.\nFree per day: ${FREE_PER_DAY}. Extra/day from license: ${allowedExtra}.\nBuy/activate license for more signals.`);
+    return;
+  }
 
-⚡ Note: Follow risk 
-management & check previous candle.`;
-}
+  // show professional loading
+  signalText.innerHTML = `<span class="loading-text">Phantom AI Analysis in progress<span style="opacity:.6"> . . .</span></span>`;
+  signalButtons.style.display = 'none';
 
-document.getElementById('generateBtn').addEventListener('click',()=>{
-  const type=document.getElementById('marketType').value.trim();
-  const pair=document.getElementById('marketName').value.trim();
-  if(!type){alert("Select market type"); return;}
-  if(!pair){alert("Enter pair name"); return;}
-
-  signalText.innerHTML=`<span class="loading-text">Phantom AI Analysis in progress...</span>`;
-  signalButtons.style.display="none";
-
+  // simulate 3s analysis then show signal with random 2-3 minute time
   setTimeout(()=>{
-    const signal=buildSignalText(pair);
-    signalText.textContent=signal;
+    const now = new Date();
+    const randomMinutes = Math.floor(Math.random()*2)+2; // 2-3
+    now.setMinutes(now.getMinutes() + randomMinutes);
+    const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const signal = `🚀 Phantom AI\n\n💱 Pair: ${pair}\n⏰ Time: ${timeStr}\n\n📈 Strategy: Opposite Trade\n\n⚡ Note: Follow risk \nmanagement & check previous candle.`;
+    signalText.textContent = signal;
     signalText.classList.add('signal-fade');
-    signalButtons.style.display="flex";
+    signalButtons.style.display = 'flex';
+    // increment usage only when signal actually generated
+    usage.count = (usage.count || 0) + 1;
+    saveUsage(usage);
+    renderLicenseStatus();
   },3000);
 });
 
+// addSignal when pressing buttons; clears output box afterwards
 function addSignal(status){
-  const pair=document.getElementById('marketName').value.trim();
-  history.push({pair,status});
-  sessionStorage.setItem('history',JSON.stringify(history));
+  const pair = marketNameEl.value.trim();
+  if(!pair) return alert('Pair missing');
+  history.push({pair, status});
+  saveHistory();
   renderResults();
-  signalText.textContent="Press Generate to create a signal.";
-  signalButtons.style.display="none";
+  // clear signal box
+  signalText.textContent = 'Press Generate to create a signal.';
+  signalButtons.style.display = 'none';
 }
-
 btnProfit.addEventListener('click',()=>addSignal('win'));
 btnLoss.addEventListener('click',()=>addSignal('loss'));
 btnAvoid.addEventListener('click',()=>addSignal('avoid'));
 
-copySignal.addEventListener('click',()=>navigator.clipboard.writeText(signalText.textContent).then(()=>showToast()));
-copyResult.addEventListener('click',()=>navigator.clipboard.writeText(`🏁 Phantom AI Result 🏁\n\n${resultList.textContent}\n\n${summary.textContent}`).then(()=>showToast()));
-
-resetBtn.addEventListener('click',()=>{
-  if(confirm("Clear all recorded signals?")){
-    history=[];
-    sessionStorage.removeItem('history');
-    renderResults();
-  }
+// copy single signal
+copySignalBtn.addEventListener('click',()=>{
+  const txt = signalText.textContent || '';
+  navigator.clipboard.writeText(txt).then(()=>showToast('Signal copied'));
 });
 
-renderResults();
+// copy full result (header + signals + summary)
+copyResultBtn.addEventListener('click',()=>{
+  let text = `🏁 Phantom AI Result 🏁\n\n`;
+  history.forEach(h => {
+    text += `${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}\n`;
+  });
+  // summary
+  const total = history.length;
+  const wins = history.filter(h=>h.status==='win').length;
+  const losses = history.filter(h=>h.status==='loss').length;
+  const avoids = history.filter(h=>h.status==='avoid').length;
+  const accuracy = (wins+losses)>0 ? Math.round((wins/(wins+losses))*100) : 0;
+  text += `\n📊 Total Signals: ${total}\n✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}\n📈 Accuracy: ${accuracy}%`;
+  navigator.clipboard.writeText(text).then(()=>showToast('Results copied'));
+});
+
+// reset
+resetBtn.addEventListener('click',()=>{
+  if(!confirm('Clear all recorded signals?')) return;
+  history = [];
+  saveHistory();
+  renderResults();
+  showToast('History cleared');
+});
+
+// render results
+function renderResults(){
+  const lines = history.map(h=>`${h.pair} ${h.status==='win'?'✅':h.status==='loss'?'❌':'⚠️'}`).join("\n");
+  resultList.textContent = lines || 'No signals yet.';
+  const total = history.length;
+  const wins = history.filter(h=>h.status==='win').length;
+  const losses = history.filter(h=>h.status==='loss').length;
+  const avoids = history.filter(h=>h.status==='avoid').length;
+  const accuracy = (wins+losses)>0 ? Math.round((wins/(wins+losses))*100) : 0;
+  summary.innerText = `📊 Total Signals: ${total}\n✅ Win: ${wins} ❌ Loss: ${losses} ⚠️ Avoid: ${avoids}\n📈 Accuracy: ${accuracy}%`;
+}
+
+// Activate license (member side) - must match issuedLicenses mapping
+activateBtn.addEventListener('click',()=>{
+  const key = activateKey.value.trim();
+  if(!key) return alert('Please paste a license key');
+  const issued = getIssuedLicenses();
+  if(!issued[key]) return alert('Invalid license key');
+  const rec = issued[key];
+  if(rec.deviceId !== deviceId) return alert('This license key is not for this device ID');
+  const nowISO = new Date().toISOString().slice(0,10);
+  if(nowISO > rec.expiresISO) return alert('This license key is expired');
+  // Activate: store to phantom_license_<deviceId>
+  setActivatedForDevice(deviceId, {key, expiresISO: rec.expiresISO, extraPerDay: rec.extraPerDay || 0, unlimited: !!rec.unlimited});
+  renderLicenseStatus();
+  showToast('License activated');
+});
+
+// ---------- ADMIN PANEL ----------
+showAdmin.addEventListener('click',()=>{ adminPanel.style.display = adminPanel.style.display==='none' ? 'block' : 'none'; });
+
+adminLogin.addEventListener('click',()=>{
+  const pass = adminPass.value;
+  if(pass !== '@TraderParvej@'){ alert('Wrong password'); return; }
+  adminLogged = true;
+  adminInner.style.display='block';
+  adminLogout.style.display='inline-block';
+  adminLogin.style.display='none';
+  adminPass.style.display='none';
+  renderIssuedTable();
+});
+
+adminLogout.addEventListener('click',()=>{
+  adminLogged = false;
+  adminInner.style.display='none';
+  adminLogout.style.display='none';
+  adminLogin.style.display='inline-block';
+  adminPass.style.display='inline-block';
+  adminPass.value = '';
+});
+
+// generate license (admin)
+generateLicense.addEventListener('click',()=>{
+  if(!adminLogged) return alert('Admin not logged in');
+  const dId = genDeviceId.value.trim();
+  if(!dId) return alert('Enter device ID to generate license for');
+  const days = parseInt(genDays.value,10);
+  if(isNaN(days) || days <= 0) return alert('Enter valid days');
+  let extra = parseInt(genExtra.value,10);
+  if(isNaN(extra)) extra = 0;
+  const unlimited = genUnlimited.checked;
+
+  // create key (random)
+  const key = 'LIC-' + Math.random().toString(36).slice(2,10).toUpperCase();
+  const expiresISO = addDaysISO(days);
+  const rec = { deviceId: dId, expiresISO, extraPerDay: unlimited ? 0 : extra, unlimited: !!unlimited };
+  const issued = getIssuedLicenses();
+  issued[key] = rec;
+  saveIssuedLicenses(issued);
+  renderIssuedTable();
+  alert('Generated key: ' + key + '\nGive this to member for activation (device-bound)');
+});
+
+// render issued licenses table
+function renderIssuedTable(){
+  const issued = getIssuedLicenses();
+  issuedTableBody.innerHTML = '';
+  Object.keys(issued).forEach(k=>{
+    const r = issued[k];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="font-family:monospace">${k}</td><td>${r.deviceId}</td><td>${r.expiresISO}</td><td>${r.unlimited? 'Unlimited' : r.extraPerDay}</td>
+      <td><button data-key="${k}" class="btn small-btn">Revoke</button></td>`;
+    issuedTableBody.appendChild(tr);
+  });
+  // attach revoke handlers
+  document.querySelectorAll('.small-btn').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      const k = e.currentTarget.getAttribute('data-key');
+      if(!confirm('Revoke license ' + k + ' ?')) return;
+      const issued = getIssuedLicenses();
+      delete issued[k];
+      saveIssuedLicenses(issued);
+      // also if that license was activated on device, remove it
+      const rec = issued[k];
+      // simple approach: remove any activated license matching key
+      Object.keys(localStorage).forEach(key=>{
+        if(key.startsWith('phantom_license_')){
+          const val = getLS(key, null);
+          if(val && val.key === k) localStorage.removeItem(key);
+        }
+      });
+      renderIssuedTable();
+      renderLicenseStatus();
+      showToast('Revoked');
+    });
+  });
+}
+
+// render table initially (if admin not logged it's fine)
+renderIssuedTable();
+
+// helper: saveHistory
+function saveHistory(){ setLS('history', history); }
+
+// usage helpers defined earlier
+function saveUsage(u){ setLS('usage_'+deviceId, u); }
+
+// restore usage if date mismatch we reset
+(function ensureUsageDate(){
+  const u = getLS('usage_'+deviceId, null);
+  if(u && u.date !== todayStr()){
+    u.date = todayStr(); u.count = 0; saveUsage(u);
+  }
+})();
+
+// initial license status render
+renderLicenseStatus();
+
 </script>
 </body>
 </html>
