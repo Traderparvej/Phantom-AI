@@ -3,244 +3,174 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Phantom AI — Signal Dashboard</title>
+<title>Phantom AI — Simple Signal</title>
 <style>
 :root{
-  --bg:#070b1a; --text:#e7f1ff; --accent:#00ffc6; --border:#1b2445; --muted:#9fb0d6;
-  --success:#22c55e; --danger:#ff6b6b; --card:#0f1530;
+  --bg:#070b1a; --text:#e7f1ff; --accent:#00ffc6; --accent-2:#42a5ff;
+  --muted:#9fb0d6; --card:#0f1530; --glass:rgba(255,255,255,0.03);
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:radial-gradient(circle at top,#020617 0%,#050a20 100%);color:var(--text)}
-.container{min-height:100%;display:flex;align-items:flex-start;justify-content:center;padding:28px;}
-.card{width:100%;max-width:920px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--border);box-shadow:0 12px 40px rgba(2,6,23,0.7);padding:24px;backdrop-filter:blur(8px)}
+.container{min-height:100%;display:flex;align-items:flex-start;justify-content:center;padding:36px;}
+.card{width:100%;max-width:820px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);box-shadow:0 12px 40px rgba(2,6,23,0.7);padding:24px;backdrop-filter:blur(6px)}
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .brand{display:flex;align-items:center;gap:12px}
-.logo-circle{width:18px;height:18px;border-radius:50%;background:linear-gradient(90deg,#00ffc6,#42a5ff);animation:pulse 1.6s infinite}
-@keyframes pulse{0%{transform:scale(1);opacity:.75}50%{transform:scale(1.4);opacity:1}100%{transform:scale(1);opacity:.75}}
-.brand h1{margin:0;font-size:20px;font-weight:800;background:linear-gradient(90deg,#00ffc6,#42a5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-circle{width:18px;height:18px;border-radius:50%;background:linear-gradient(90deg,var(--accent),var(--accent-2));animation:pulse 1.6s infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.35);opacity:1}100%{transform:scale(1);opacity:.8}}
+.brand h1{margin:0;font-size:20px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .slogan{font-size:12px;color:var(--muted);margin-top:2px}
-.device-info{text-align:right;font-size:13px;color:var(--muted);background:rgba(255,255,255,0.02);padding:6px 10px;border-radius:8px}
-.input-field,.select-field{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:var(--text);outline:none;margin-bottom:12px;font-size:15px}
+
+/* form */
+.form-row{display:flex;gap:12px;margin-bottom:12px}
+.col{flex:1;min-width:0}
+.input-field,.select-field{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:var(--glass);color:var(--text);outline:none;font-size:15px}
 .select-field option{color:#000}
-.btn{padding:12px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:800;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;transition:opacity .12s,transform .12s}
+.label{font-size:13px;color:var(--muted);margin-bottom:6px;display:block}
+
+/* actions & output */
+.controls{display:flex;gap:10px;align-items:center;margin-top:6px}
+.btn{padding:12px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#00121a;transition:opacity .12s,transform .12s}
 .btn:active{transform:translateY(1px)}
-.btn-small{padding:8px 10px;font-weight:700;border-radius:8px}
-.btn-danger{background:linear-gradient(90deg,#ff9b9b,#ff6b6b);color:#2b0707}
-.row{display:flex;gap:10px;align-items:center}
-.output-box{margin-top:16px;padding:16px;border-radius:12px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.04);min-height:160px;position:relative}
-.copy-btn{position:absolute;top:12px;right:12px;padding:6px 10px;border-radius:8px;border:none;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;font-weight:700;cursor:pointer}
-.result-box{margin-top:16px;padding:16px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);min-height:160px}
-.small-muted{font-size:13px;color:var(--muted);margin-top:8px}
-.signal-buttons{margin-top:10px;display:flex;gap:8px}
-.toast{position:fixed;right:20px;bottom:20px;background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;padding:10px 14px;border-radius:10px;font-weight:800;transform:translateY(8px);opacity:0;transition:all .25s;z-index:2000}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);font-weight:700}
+.output-area{margin-top:18px;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);min-height:140px;position:relative}
+.copy-btn{position:absolute;top:14px;right:14px;padding:8px 10px;border-radius:8px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#00121a;font-weight:700;cursor:pointer}
+
+/* helper text */
+.hint{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* toast */
+.toast{position:fixed;right:20px;bottom:20px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#00121a;padding:10px 14px;border-radius:10px;font-weight:800;transform:translateY(8px);opacity:0;transition:all .25s;z-index:2000}
 .toast.show{opacity:1;transform:translateY(0)}
-.trial-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(90deg,#00ffc6,#42a5ff);color:#00121a;padding:18px 22px;border-radius:12px;font-weight:800;z-index:2000;display:none;box-shadow:0 10px 30px rgba(0,0,0,.45);cursor:pointer;text-align:center;max-width:320px}
-.admin-footer{text-align:center;color:var(--muted);font-size:13px;margin-top:14px;cursor:pointer}
-.modal-backdrop{position:fixed;inset:0;background:rgba(1,4,12,0.6);display:none;align-items:center;justify-content:center;z-index:3000}
-.modal{width:720px;max-width:92%;background:linear-gradient(180deg, rgba(10,12,22,0.98), rgba(6,8,15,0.98));border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 20px 60px rgba(1,4,12,0.7);transform:translateY(12px);opacity:0;transition:all .18s}
-.modal.show{transform:translateY(0);opacity:1}
-.close-x{position:absolute;right:14px;top:12px;border:none;background:transparent;color:var(--muted);font-weight:700;cursor:pointer}
-@media(max-width:720px){ .modal{padding:14px} }
+
+/* responsive */
+@media(max-width:720px){
+  .form-row{flex-direction:column}
+  .copy-btn{position:static;margin-top:10px}
+}
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="card">
+  <div class="card" role="main" aria-labelledby="pageTitle">
     <div class="header">
-      <div class="brand"><span class="logo-circle"></span><div><h1>Phantom AI</h1><div class="slogan">AI Based Market Analysis System</div></div></div>
-      <div class="device-info">Device ID: <strong id="deviceId">...</strong><br>License: <strong id="licenseStatus">Inactive</strong></div>
+      <div class="brand"><span class="logo-circle" aria-hidden="true"></span><div><h1 id="pageTitle">Phantom AI</h1><div class="slogan">Simple Signal Creator</div></div></div>
+      <div style="text-align:right;color:var(--muted);font-size:13px">Version 1.0</div>
     </div>
 
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-      <input id="licenseKey" class="input-field" placeholder="Enter license key (if you have one)" style="flex:1">
-      <button id="verifyBtn" class="btn btn-small">Verify</button>
-    </div>
+    <!-- Form -->
+    <div>
+      <label class="label" for="pairInput">Enter Pair Name</label>
+      <input id="pairInput" class="input-field" placeholder="e.g. EUR/JPY">
 
-    <label class="small-muted">Select Market Type</label>
-    <select id="marketType" class="select-field">
-      <option value="">-- Choose Market --</option>
-      <option value="Real Market">Real Market</option>
-      <option value="OTC Market">OTC Market</option>
-    </select>
+      <div class="form-row">
+        <div class="col">
+          <label class="label" for="marketType">Select Market Type</label>
+          <select id="marketType" class="select-field">
+            <option value="">-- Select --</option>
+            <option value="Real Market">Real Market</option>
+            <option value="OTC Market">OTC Market</option>
+          </select>
+        </div>
 
-    <label class="small-muted">Enter Pair Name</label>
-    <input id="marketName" class="input-field" placeholder="e.g. EUR/JPY or USD/JPY">
+        <div class="col">
+          <label class="label" for="timeInput">Enter Signal Time</label>
+          <input id="timeInput" class="input-field" placeholder="HH:MM (24-hour) — e.g. 10:30">
+        </div>
+      </div>
 
-    <div style="display:flex;gap:10px;align-items:center">
-      <button id="generateBtn" class="btn">Generate</button>
-      <div class="small-note" style="margin-left:8px">Free trial: 2 signals/day (without license)</div>
-    </div>
+      <label class="label" for="strategyInput">Enter Strategy Name</label>
+      <input id="strategyInput" class="input-field" placeholder="e.g. Opposite Trade / Running Candle">
 
-    <div class="output-box" id="outputBox">
-      <button class="copy-btn" id="copySignal">Copy</button>
-      <div id="signalText" style="opacity:.9;white-space:pre-line;">Press Generate to create a signal.</div>
-      <div class="signal-buttons" id="signalButtons" style="display:none">
-        <button class="btn btn-small" id="btnProfit">✅ Profit</button>
-        <button class="btn btn-small" id="btnLoss">❌ Loss</button>
-        <button class="btn btn-small" id="btnAvoid">⚠️ Avoid</button>
+      <div class="controls">
+        <button id="generateBtn" class="btn">Generate Signal</button>
+        <button id="clearBtn" class="btn btn-ghost">Clear</button>
+        <div class="hint">Signal will appear below in a clean, shareable format.</div>
       </div>
     </div>
 
-    <div class="result-box">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>🏁 Phantom AI Result 🏁</div>
-        <button class="copy-btn" id="copyResult" style="position:static">Copy</button>
-      </div>
-      <div id="resultList" style="white-space:pre-line;margin-top:8px;color:#cfefff;min-height:70px">No signals yet.</div>
-      <div id="summary" class="small-muted"></div>
-      <div style="display:flex;justify-content:flex-end">
-        <button id="resetBtn" class="btn" style="margin-top:10px">Reset</button>
-      </div>
+    <!-- Output -->
+    <div class="output-area" id="outputArea" aria-live="polite">
+      <button class="copy-btn" id="copyBtn">Copy</button>
+      <div id="outputText" style="white-space:pre-line;color:#cfefff;font-size:15px">No signal yet. Fill the fields and click "Generate Signal".</div>
     </div>
 
-    <div class="admin-footer" id="adminFooter">Admin Panel</div>
-  </div>
-</div>
-
-<div class="trial-popup" id="trialPopup">You can generate only 2 signals/day in Free Trial.<br>Click here to get License Key (@TraderParvej)</div>
-
-<div class="modal-backdrop" id="passwordBackdrop">
-  <div class="modal">
-    <button class="close-x" id="closePasswordModal">✕</button>
-    <h2>Enter Admin Password</h2>
-    <input id="adminPasswordInput" type="password" placeholder="Enter password" class="input-field">
-    <div style="text-align:right;margin-top:10px"><button id="verifyAdminPasswordBtn" class="btn btn-small">Verify</button></div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal">
-    <button class="close-x" id="closeModal">✕</button>
-    <h2>Admin Panel — License Generator</h2>
-    <input id="adminDeviceId" class="input-field" placeholder="Device ID">
-    <input id="adminUserName" class="input-field" placeholder="Username">
-    <input id="adminValidity" class="input-field" type="number" value="30">
-    <button id="generateLicenseBtn" class="btn btn-small">Generate License</button>
-    <div id="licensesList" style="margin-top:10px;color:#ccc;font-size:14px;"></div>
   </div>
 </div>
 
 <div class="toast" id="toast">Copied</div>
 
 <script>
-// ===== Device ID =====
-function ensureDeviceId(){
-  let id = localStorage.getItem('phantomDeviceId');
-  if(!id){
-    id = 'Phantom-' + Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0');
-    localStorage.setItem('phantomDeviceId', id);
+// utilities
+const $ = id => document.getElementById(id);
+const toast = $('toast');
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),1400);
+}
+
+// validation for HH:MM 24-hour
+function isValidTime(str){
+  if(!str) return false;
+  const m = str.trim().match(/^([01]?\d|2[0-3]):([0-5]\d)$/);
+  return !!m;
+}
+
+// build signal text
+function buildSignal(pair, market, time, strategy){
+  return `🚀 Phantom AI 🚀
+
+💱 Pair: ${pair} ${market}
+🕒 Time: ${time}
+
+📈 Strategy: ${strategy}
+
+⚡️ Note: Follow risk management & check previous candle.`;
+}
+
+// elements
+const pairInput = $('pairInput');
+const marketType = $('marketType');
+const timeInput = $('timeInput');
+const strategyInput = $('strategyInput');
+const generateBtn = $('generateBtn');
+const clearBtn = $('clearBtn');
+const outputText = $('outputText');
+const copyBtn = $('copyBtn');
+
+// events
+generateBtn.addEventListener('click', ()=> {
+  const pair = pairInput.value.trim();
+  const market = marketType.value.trim();
+  const time = timeInput.value.trim();
+  const strategy = strategyInput.value.trim() || '—';
+
+  if(!pair){ alert('Please enter Pair Name.'); pairInput.focus(); return; }
+  if(!market){ alert('Please select Market Type.'); marketType.focus(); return; }
+  if(!time){ alert('Please enter Signal Time (HH:MM).'); timeInput.focus(); return; }
+  if(!isValidTime(time)){ alert('Time format invalid. Use HH:MM (24-hour) e.g. 14:05'); timeInput.focus(); return; }
+
+  const signal = buildSignal(pair, market, time, strategy);
+  outputText.textContent = signal;
+});
+
+clearBtn.addEventListener('click', ()=> {
+  pairInput.value=''; marketType.value=''; timeInput.value=''; strategyInput.value=''; outputText.textContent='No signal yet. Fill the fields and click "Generate Signal".';
+});
+
+copyBtn.addEventListener('click', async ()=> {
+  try{
+    await navigator.clipboard.writeText(outputText.textContent);
+    showToast('Signal copied ✅');
+  }catch(e){
+    alert('Unable to copy. Your browser may block clipboard access.');
   }
-  return id;
-}
-const deviceId = ensureDeviceId();
-document.getElementById('deviceId').textContent = deviceId;
+});
 
-// ===== License =====
-const LICENSES_KEY='phantom_licenses_v1';
-function loadLicenses(){try{return JSON.parse(localStorage.getItem(LICENSES_KEY)||'{}');}catch{return {};}}
-function saveLicenses(o){localStorage.setItem(LICENSES_KEY,JSON.stringify(o));}
-const toast=document.getElementById('toast');
-function showToast(t){toast.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1600);}
-
-const todayStr=new Date().toISOString().slice(0,10);
-let trial=JSON.parse(localStorage.getItem('phantom_trial')||'{}');
-if(trial.date!==todayStr){trial={date:todayStr,count:0};localStorage.setItem('phantom_trial',JSON.stringify(trial));}
-
-let licenseVerified=false;
-const licenseStatus=document.getElementById('licenseStatus');
-const licData=JSON.parse(localStorage.getItem('phantom_active_license')||'null');
-if(licData&&new Date(licData.exp)>=new Date()){licenseVerified=true;licenseStatus.textContent='Active';}
-
-document.getElementById('verifyBtn').onclick=()=>{
-  const key=document.getElementById('licenseKey').value.trim();
-  const all=loadLicenses();
-  if(key in all){
-    const lic=all[key];
-    if(lic.device===deviceId && lic.exp>=todayStr){
-      licenseVerified=true;
-      licenseStatus.textContent='Active';
-      localStorage.setItem('phantom_active_license',JSON.stringify(lic));
-      showToast("License Verified ✅");
-    }else alert("Invalid Device or Expired License");
-  }else alert("Invalid License");
-};
-
-// ===== Generate Signal =====
-document.getElementById('generateBtn').onclick=()=>{
-  const market=document.getElementById('marketName').value.trim();
-  const type=document.getElementById('marketType').value.trim();
-  if(!market||!type)return alert("Enter all fields");
-  if(!licenseVerified&&trial.count>=2)return document.getElementById('trialPopup').style.display='block';
-  if(!licenseVerified){trial.count++;localStorage.setItem('phantom_trial',JSON.stringify(trial));}
-  
-  const time=new Date();time.setMinutes(time.getMinutes()+2+Math.floor(Math.random()*2));
-  const hh=String(time.getHours()).padStart(2,'0');
-  const mm=String(time.getMinutes()).padStart(2,'0');
-
-  const signal=`🚀 Phantom AI 🚀
-
-💱 Pair: ${market} ${type}
-⏰ Time: ${hh}:${mm}
-
-📈 Strategy: Opposite Trade
-
-⚡️ Note: Follow risk 
-management & check previous candle.`;
-
-  document.getElementById('signalText').textContent=signal;
-  document.getElementById('signalButtons').style.display='flex';
-};
-
-// ===== Copy Buttons =====
-document.getElementById('copySignal').onclick=()=>{navigator.clipboard.writeText(document.getElementById('signalText').textContent);showToast("Signal Copied ✅");};
-document.getElementById('copyResult').onclick=()=>{navigator.clipboard.writeText(document.getElementById('resultList').textContent);showToast("Result Copied ✅");};
-
-// ===== Profit / Loss / Avoid Buttons =====
-document.getElementById('btnProfit').onclick=()=>{
-  const signal=document.getElementById('signalText').textContent;
-  const rl=document.getElementById('resultList');
-  rl.textContent += `${signal}\nResult: ✅ Profit\n\n`;
-};
-document.getElementById('btnLoss').onclick=()=>{
-  const signal=document.getElementById('signalText').textContent;
-  const rl=document.getElementById('resultList');
-  rl.textContent += `${signal}\nResult: ❌ Loss\n\n`;
-};
-document.getElementById('btnAvoid').onclick=()=>{
-  const signal=document.getElementById('signalText').textContent;
-  const rl=document.getElementById('resultList');
-  rl.textContent += `${signal}\nResult: ⚠️ Avoid\n\n`;
-};
-
-// ===== Reset =====
-document.getElementById('resetBtn').onclick=()=>{document.getElementById('resultList').textContent='';document.getElementById('summary').textContent='';document.getElementById('signalText').textContent='Press Generate to create a signal.';trial.count=0;localStorage.setItem('phantom_trial',JSON.stringify(trial));document.getElementById('trialPopup').style.display='none';};
-document.getElementById('trialPopup').onclick=()=>{document.getElementById('trialPopup').style.display='none';};
-
-// ===== Admin Panel =====
-const adminFooter=document.getElementById('adminFooter');
-const passwordBackdrop=document.getElementById('passwordBackdrop');
-const modalBackdrop=document.getElementById('modalBackdrop');
-adminFooter.onclick=()=>{passwordBackdrop.style.display='flex';passwordBackdrop.querySelector('.modal').classList.add('show');};
-document.getElementById('closePasswordModal').onclick=()=>{passwordBackdrop.style.display='none';};
-document.getElementById('verifyAdminPasswordBtn').onclick=()=>{
-  const p=document.getElementById('adminPasswordInput').value;
-  if(p==='@TraderParvej+'){passwordBackdrop.style.display='none';modalBackdrop.style.display='flex';modalBackdrop.querySelector('.modal').classList.add('show');renderLic();}
-  else alert("Wrong password");
-};
-document.getElementById('closeModal').onclick=()=>{modalBackdrop.style.display='none';};
-document.getElementById('generateLicenseBtn').onclick=()=>{
-  const id=document.getElementById('adminDeviceId').value.trim();
-  const user=document.getElementById('adminUserName').value.trim();
-  const days=parseInt(document.getElementById('adminValidity').value);
-  if(!id||!user||days<=0)return alert("Fill all");
-  const key='PH-'+Math.random().toString(36).substring(2,10).toUpperCase();
-  const exp=new Date();exp.setDate(exp.getDate()+days);
-  const all=loadLicenses();all[key]={device:id,user,exp:exp.toISOString().slice(0,10)};saveLicenses(all);renderLic();
-};
-function renderLic(){
-  const all=loadLicenses();const div=document.getElementById('licensesList');
-  div.innerHTML='<b>Saved Licenses:</b><br>'+Object.entries(all).map(([k,v])=>`${k} — ${v.device} — ${v.user} — ${v.exp}`).join('<br>');
-}
+// optional: enter key triggers generate when focused in time or strategy
+[timeInput, strategyInput].forEach(el=>{
+  el.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ generateBtn.click(); }});
+});
 </script>
 </body>
 </html>
