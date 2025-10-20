@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Signal Generator</title>
 <style>
 :root{
-  --bg:#070b1a; --text:#e7f1ff; --accent:#00ffc6; --accent2:#42a5ff; --muted:#9fb0d6; --card:#0f1530; --glass:rgba(255,255,255,0.03);
+  --bg:#070b1a; --text:#e7f1ff; --accent:#00ffc6; --accent2:#42a5ff; --muted:#9fb0d6; --glass:rgba(255,255,255,0.03);
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:radial-gradient(circle at top,#020617 0%,#050a20 100%);color:var(--text)}
@@ -18,15 +18,11 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 @keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.35);opacity:1}100%{transform:scale(1);opacity:.8}}
 .brand h1{margin:0;font-size:20px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .slogan{font-size:12px;color:var(--muted);margin-top:2px}
-
-/* form */
 .form-row{display:flex;gap:12px;margin-bottom:12px}
 .col{flex:1;min-width:0}
 .input-field,.select-field{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:var(--glass);color:var(--text);outline:none;font-size:15px}
 .select-field option{color:#000}
 .label{font-size:13px;color:var(--muted);margin-bottom:6px;display:block}
-
-/* actions & output */
 .controls{display:flex;gap:10px;align-items:center;margin-top:6px}
 .btn{padding:12px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#00121a;transition:opacity .12s,transform .12s}
 .btn:active{transform:translateY(1px)}
@@ -34,12 +30,8 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 .output-area{margin-top:18px;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);min-height:140px;position:relative}
 .copy-btn{position:absolute;top:14px;right:14px;padding:8px 10px;border-radius:8px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#00121a;font-weight:700;cursor:pointer}
 .callput-box{margin-top:12px;display:none;gap:10px}
-
-/* toast */
 .toast{position:fixed;right:20px;bottom:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#00121a;padding:10px 14px;border-radius:10px;font-weight:800;transform:translateY(8px);opacity:0;transition:all .25s;z-index:2000}
 .toast.show{opacity:1;transform:translateY(0)}
-
-/* responsive */
 @media(max-width:720px){
   .form-row{flex-direction:column}
   .copy-btn{position:static;margin-top:10px}
@@ -93,7 +85,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 
     <!-- Output Area -->
     <div class="output-area" id="outputArea">
-      <button class="copy-btn" id="copyBtn">Copy</button>
+      <button class="copy-btn" id="copyBtn">Copy Signal</button>
       <div id="outputText" style="white-space:pre-line;color:#cfefff;font-size:15px">No signal yet.</div>
     </div>
 
@@ -181,7 +173,7 @@ clearBtn.addEventListener('click', ()=>{
 });
 
 copyBtn.addEventListener('click', async ()=>{
-  try{await navigator.clipboard.writeText(outputText.textContent); showToast('Copied ✅');}
+  try{await navigator.clipboard.writeText(outputText.textContent); showToast('Signal Copied ✅');}
   catch(e){alert('Unable to copy');}
 });
 </script>
