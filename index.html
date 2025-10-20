@@ -1,165 +1,181 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Phantom AI — Login</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Signal Generator</title>
 <style>
 :root{
-  --bg:#081024; --panel:#0f1530; --muted:#9fb0d6; --text:#ffffff;
-  --accent:#6dd6ff; --green:#00ffb3; --red:#ff4f4f;
+  --bg:#070b1a; --text:#e7f1ff; --accent:#00ffc6; --accent2:#42a5ff; --muted:#9fb0d6; --glass:rgba(255,255,255,0.03);
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:linear-gradient(180deg,#02021a 0%,var(--bg) 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
-.wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:36px;position:relative}
-.card{width:100%;max-width:460px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:18px;padding:36px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 12px 40px rgba(2,6,23,0.7);backdrop-filter: blur(8px);position:relative;z-index:1}
-.brand{display:flex;gap:16px;align-items:center;margin-bottom:20px}
-.logo{width:78px;height:78px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#061226 0%,#0f1530 100%);box-shadow:0 10px 30px rgba(2,6,23,0.6);position:relative;cursor:pointer;overflow:hidden}
-.logo:hover{transform:translateY(-4px)}
-@keyframes float {0%{transform:translateY(0)}50%{transform:translateY(-4px)}100%{transform:translateY(0)}}
-.logo .mark{animation:float 3.5s ease-in-out infinite}
-.title{font-size:20px;font-weight:700;letter-spacing:0.4px}
-.subtitle{font-size:13px;color:var(--muted);margin-top:2px}
-form{margin-top:18px}
-.field{margin-bottom:14px}
-label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
-input[type=password]{width:100%;padding:12px 44px 12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.03);color:inherit;font-size:15px;outline:none}
-.actions{display:flex;gap:10px;align-items:center;margin-top:12px}
-.btn{flex:1;padding:12px;border-radius:10px;border:none;cursor:pointer;font-weight:600;transition:0.3s}
-.btn.primary{background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#041025}
-.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
-.chat-icon{position:fixed;bottom:22px;right:22px;width:56px;height:56px;background:linear-gradient(135deg,#0ea5e9 0%,#7c3aed 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 30px rgba(12,20,50,0.6);z-index:999;transition:transform .3s ease}
-.chat-icon:hover{transform:scale(1.1)}
-.chat-icon img{width:28px;height:28px}
-
-/* Minimal professional popup */
-.popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  background: rgba(0, 255, 179, 0.15);
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #00ffb3;
-  text-align: center;
-  box-shadow: 0 0 15px rgba(0,255,179,0.6);
-  opacity: 0;
-  z-index: 9999;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  white-space: nowrap; /* single line */
-}
-
-.popup.show {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1;
-}
-
-.popup.error {
-  background: rgba(255,79,79,0.15);
-  color: #ff4f4f;
-  box-shadow: 0 0 15px rgba(255,79,79,0.6);
+html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:radial-gradient(circle at top,#020617 0%,#050a20 100%);color:var(--text)}
+.container{min-height:100%;display:flex;align-items:flex-start;justify-content:center;padding:36px;}
+.card{width:100%;max-width:820px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);box-shadow:0 12px 40px rgba(2,6,23,0.7);padding:24px;backdrop-filter:blur(6px)}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo-circle{width:18px;height:18px;border-radius:50%;background:linear-gradient(90deg,var(--accent),var(--accent2));animation:pulse 1.6s infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.35);opacity:1}100%{transform:scale(1);opacity:.8}}
+.brand h1{margin:0;font-size:20px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.slogan{font-size:12px;color:var(--muted);margin-top:2px}
+.form-row{display:flex;gap:12px;margin-bottom:12px}
+.col{flex:1;min-width:0}
+.input-field,.select-field{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:var(--glass);color:var(--text);outline:none;font-size:15px}
+.select-field option{color:#000}
+.label{font-size:13px;color:var(--muted);margin-bottom:6px;display:block}
+.controls{display:flex;gap:10px;align-items:center;margin-top:6px}
+.btn{padding:12px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#00121a;transition:opacity .12s,transform .12s}
+.btn:active{transform:translateY(1px)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);font-weight:700}
+.output-area{margin-top:18px;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);min-height:140px;position:relative}
+.copy-btn{position:absolute;top:14px;right:14px;padding:8px 10px;border-radius:8px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#00121a;font-weight:700;cursor:pointer}
+.callput-box{margin-top:12px;display:none;gap:10px}
+.toast{position:fixed;right:20px;bottom:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#00121a;padding:10px 14px;border-radius:10px;font-weight:800;transform:translateY(8px);opacity:0;transition:all .25s;z-index:2000}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:720px){
+  .form-row{flex-direction:column}
+  .copy-btn{position:static;margin-top:10px}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="container">
   <div class="card">
-    <div class="brand">
-      <div class="logo" title="Join Telegram" onclick="window.open('https://t.me/TraderParvej_Community','_blank')">
-        <svg class="mark" viewBox="0 0 80 80" width="60" height="60" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="grad1" x1="0" x2="1">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="100%" stop-color="#4facfe"/>
-            </linearGradient>
-            <linearGradient id="grad2" x1="0" x2="1">
-              <stop offset="0%" stop-color="#7c3aed"/>
-              <stop offset="100%" stop-color="#06b6d4"/>
-            </linearGradient>
-          </defs>
-          <path d="M10 60 L70 60 M10 40 L70 40 M10 20 L70 20" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-          <rect x="16" y="35" width="6" height="25" rx="2" fill="url(#grad1)">
-            <animate attributeName="y" values="35;30;35" dur="2.5s" repeatCount="indefinite"/>
-          </rect>
-          <rect x="32" y="25" width="6" height="35" rx="2" fill="url(#grad2)">
-            <animate attributeName="y" values="25;20;25" dur="3s" repeatCount="indefinite"/>
-          </rect>
-          <rect x="48" y="40" width="6" height="20" rx="2" fill="url(#grad1)">
-            <animate attributeName="y" values="40;36;40" dur="2.8s" repeatCount="indefinite"/>
-          </rect>
-          <path d="M55 28 L65 18 L70 23 L60 33 Z" fill="url(#grad2)">
-            <animateTransform attributeName="transform" attributeType="XML" type="translate" values="0,0;0,-3;0,0" dur="2s" repeatCount="indefinite"/>
-          </path>
-        </svg>
+    <div class="header">
+      <div class="brand"><span class="logo-circle"></span><div><h1>Signal Generator</h1><div class="slogan">DragonFly & Phantom AI</div></div></div>
+      <div style="text-align:right;color:var(--muted);font-size:13px">v1.0</div>
+    </div>
+
+    <!-- Form Inputs -->
+    <label class="label" for="pairInput">Enter Pair Name</label>
+    <input id="pairInput" class="input-field" placeholder="e.g. Pepe">
+
+    <div class="form-row">
+      <div class="col">
+        <label class="label" for="marketType">Select Market Type</label>
+        <select id="marketType" class="select-field">
+          <option value="">-- Select --</option>
+          <option value="OTC">OTC</option>
+          <option value="Real Market">Real Market</option>
+        </select>
       </div>
-      <div>
-        <div class="title">Phantom AI</div>
-        <div class="subtitle">Real Time Market Analysis</div>
+      <div class="col">
+        <label class="label" for="timeInput">Enter Signal Time</label>
+        <input id="timeInput" class="input-field" placeholder="HH:MM">
       </div>
     </div>
 
-    <form id="loginForm" onsubmit="return false" autocomplete="off">
-      <div class="field">
-        <label for="password">Enter Access Key</label>
-        <input id="password" type="password" inputmode="text" placeholder="Your secret key" />
-      </div>
-      <div class="actions">
-        <button id="loginBtn" class="btn primary" type="button">Quick Login</button>
-        <button id="resetBtn" class="btn ghost" type="button">Reset</button>
-      </div>
-    </form>
+    <label class="label" for="strategySelect">Select Strategy</label>
+    <select id="strategySelect" class="select-field">
+      <option value="">-- Select --</option>
+      <option value="DragonFly">DragonFly</option>
+      <option value="Phantom">Phantom AI</option>
+    </select>
 
-    <footer>© 2025 Phantom AI — TraderParvej</footer>
+    <div class="controls">
+      <button id="generateBtn" class="btn">Generate Signal</button>
+      <button id="clearBtn" class="btn btn-ghost">Clear</button>
+    </div>
+
+    <!-- Call/Put for Phantom -->
+    <div class="callput-box" id="callPutBox">
+      <button class="btn" id="btnCall">🟢 CALL</button>
+      <button class="btn" id="btnPut">🔴 PUT</button>
+    </div>
+
+    <!-- Output Area -->
+    <div class="output-area" id="outputArea">
+      <button class="copy-btn" id="copyBtn">Copy Signal</button>
+      <div id="outputText" style="white-space:pre-line;color:#cfefff;font-size:15px">No signal yet.</div>
+    </div>
+
   </div>
 </div>
 
-<div class="chat-icon" onclick="window.location.href='https://t.me/TraderParvej_Community'">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" />
-</div>
-
-<!-- Popup container -->
-<div id="popup" class="popup"></div>
+<div class="toast" id="toast">Copied</div>
 
 <script>
-const loginBtn = document.getElementById("loginBtn");
-const resetBtn = document.getElementById("resetBtn");
-const passwordInput = document.getElementById("password");
-const popup = document.getElementById("popup");
+const $ = id=>document.getElementById(id);
+const toast=$('toast');
+const pairInput=$('pairInput');
+const marketType=$('marketType');
+const timeInput=$('timeInput');
+const strategySelect=$('strategySelect');
+const generateBtn=$('generateBtn');
+const clearBtn=$('clearBtn');
+const outputText=$('outputText');
+const copyBtn=$('copyBtn');
+const callPutBox=$('callPutBox');
+const btnCall=$('btnCall');
+const btnPut=$('btnPut');
 
-loginBtn.addEventListener("click", () => {
-  const pass = passwordInput.value.trim();
-  if (pass === "") {
-    showPopup("Please enter your Access Key.", "error");
-    return;
-  }
+function showToast(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1400);}
+function isValidTime(str){return /^([01]?\d|2[0-3]):([0-5]\d)$/.test(str);}
 
-  if (pass === "Phantom AI") {
-    showPopup("Login Successful… Redirecting", "success");
-    setTimeout(() => { window.location.href = "signal.html"; }, 1200);
-  } else {
-    showPopup("Invalid Access Key", "error");
+function generateDragonFly(pair, market, time){
+  return `⚡️ DragonFly AI ⚡️
+
+💹 ${pair} (${market})
+🕒 ${time}
+🎯 Opposite Trade
+📋 Check previous candle & follow risk management`;
+}
+
+function generatePhantom(pair, market, time, direction){
+  return `╔══════════════╗
+      ⚡️ Phantom Signal ⚡️
+╠══════════════╣
+📊 Market: ${pair}-${market}
+⏰ Time: ${time}
+🧭 Expiry: M1
+🔮 Direction: ${direction}
+╠══════════════╣`;
+}
+
+generateBtn.addEventListener('click', ()=>{
+  const pair=pairInput.value.trim();
+  const market=marketType.value.trim();
+  const time=timeInput.value.trim();
+  const strategy=strategySelect.value;
+
+  if(!pair){alert('Enter Pair Name'); pairInput.focus(); return;}
+  if(!market){alert('Select Market Type'); marketType.focus(); return;}
+  if(!time){alert('Enter valid Signal Time HH:MM'); timeInput.focus(); return;}
+  if(!isValidTime(time)){alert('Time format invalid'); timeInput.focus(); return;}
+  if(!strategy){alert('Select Strategy'); strategySelect.focus(); return;}
+
+  if(strategy==='DragonFly'){
+    callPutBox.style.display='none';
+    outputText.textContent=generateDragonFly(pair, market, time);
+  } else if(strategy==='Phantom'){
+    callPutBox.style.display='flex';
+    outputText.textContent='Select CALL or PUT below to generate Phantom Signal.';
   }
 });
 
-resetBtn.addEventListener("click", () => {
-  passwordInput.value = "";
-  hidePopup();
+btnCall.addEventListener('click', ()=>{
+  const pair=pairInput.value.trim();
+  const market=marketType.value.trim();
+  const time=timeInput.value.trim();
+  outputText.textContent=generatePhantom(pair, market, time, '🟢 CALL');
 });
 
-function showPopup(message, type) {
-  popup.textContent = message;
-  popup.className = `popup show ${type}`;
-  setTimeout(() => { hidePopup(); }, 1800);
-}
+btnPut.addEventListener('click', ()=>{
+  const pair=pairInput.value.trim();
+  const market=marketType.value.trim();
+  const time=timeInput.value.trim();
+  outputText.textContent=generatePhantom(pair, market, time, '🔴 PUT');
+});
 
-function hidePopup() {
-  popup.className = "popup";
-}
+clearBtn.addEventListener('click', ()=>{
+  pairInput.value=''; marketType.value=''; timeInput.value=''; strategySelect.value='';
+  outputText.textContent='No signal yet.'; callPutBox.style.display='none';
+});
+
+copyBtn.addEventListener('click', async ()=>{
+  try{await navigator.clipboard.writeText(outputText.textContent); showToast('Signal Copied ✅');}
+  catch(e){alert('Unable to copy');}
+});
 </script>
-
 </body>
 </html>
